@@ -49,6 +49,12 @@ class TaskInterface {
       task_->addResult(data);
   }
 
+  /// @brief Exposes LambdaTask::batchAddResult
+  template <class T>
+  void batchAddResult(std::vector<std::shared_ptr<T>> const& data) {
+      task_->batchAddResult(data);
+  }
+
   /// @brief Exposes LambdaTask::getManagedMemory
   [[nodiscard]] std::shared_ptr<ManagedMemory> getManagedMemory() { return task_->getManagedMemory(); }
 
