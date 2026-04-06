@@ -86,6 +86,8 @@ class CoreStateManager
   bool const
       automaticStart_ = false; ///< Flag for automatic start
 
+  tool::BatchOutputVectors_t<Separator, AllTypes...> batchOutputBuffers_;
+
  public:
   /// @brief Construct a state manager from the user state manager and its state
   /// @param stateManager User-defined state manager
@@ -306,7 +308,6 @@ class CoreStateManager
   }
 
  private:
-
   /// @brief Gather the state manager and the state into the cleanableSet
   /// @param cleanableSet Set of cleanable nodes
   void gatherCleanable(std::unordered_set<hh::behavior::Cleanable *> &cleanableSet) override {
@@ -326,13 +327,15 @@ class CoreStateManager
   /// @tparam Output Ready list output type
   template<class Output>
   void emptyReadyLists() {
+    auto &datas = std::get<std::vector<std::shared_ptr<Output>>>(batchOutputBuffers_);
     auto &rdyList = std::static_pointer_cast<behavior::StateSender<Output>>(state_)->readyList();
-    std::shared_ptr<Output> data = nullptr;
+
     while (!rdyList->empty()) {
-      data = rdyList->front();
-      rdyList->pop();
-      this->sendAndNotify(data);
+        datas.push_back(rdyList->front());
+        rdyList->pop();
     }
+    this->batchSendAndNotify(datas);
+    datas.clear();
   }
 
   /// @brief Clone method, to duplicate a state manager when it is part of another graph in an execution pipeline

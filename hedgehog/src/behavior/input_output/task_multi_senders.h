@@ -65,6 +65,15 @@ class TaskMultiSenders : public MultiSenders<Outputs...> {
       tom_->sendAndNotify(data);
     }
   }
+
+  template<tool::MatchOutputTypeConcept<Outputs...> DataType>
+  void batchAddResult(std::vector<std::shared_ptr<DataType>> const &data) {
+    if (tom_ == nullptr) {
+      throw std::runtime_error("A sender needs to have the abstraction initialized before used.");
+    } else {
+      tom_->batchSendAndNotify(data);
+    }
+  }
 };
 }
 }

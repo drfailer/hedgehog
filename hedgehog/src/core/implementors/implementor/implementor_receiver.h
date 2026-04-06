@@ -91,6 +91,8 @@ class ImplementorReceiver {
   /// @return True if the piece of data has been received, else false.
   virtual bool receive(std::shared_ptr<Input> data) = 0;
 
+  virtual bool batchReceive(std::vector<std::shared_ptr<Input>> const &datas) = 0;
+
   /// @brief Get an input data
   /// @details If a data is available, it is placed in data
   /// @param data Reference to the data to get from the receiver

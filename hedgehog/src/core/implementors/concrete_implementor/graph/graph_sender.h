@@ -67,6 +67,10 @@ class GraphSender : public ImplementorSender<Output> {
   void send([[maybe_unused]]std::shared_ptr<Output> data) override {
     throw std::runtime_error("A graph has no connected ReceiverAbstraction by itself");
   }
+
+  void batchSend([[maybe_unused]] std::vector<std::shared_ptr<Output>> const &datas) override {
+    throw std::runtime_error("A graph has no connected ReceiverAbstraction by itself");
+  }
 };
 }
 }

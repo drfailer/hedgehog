@@ -48,6 +48,14 @@ class PriorityQueueReceiver : public hh::core::implementor::ImplementorReceiver<
     maxSize_ = std::max(queue_->size(), maxSize_);
     return true;
   }
+  bool batchReceive(std::vector<std::shared_ptr<Input>> const &datas) final {
+    std::lock_guard<std::mutex> lck(queueMutex_);
+    for (auto data : datas) {
+      queue_->push(data);
+    }
+    maxSize_ = std::max(queue_->size(), maxSize_);
+    return true;
+  }
   [[nodiscard]] bool getInputData(std::shared_ptr<Input> &data) override {
     std::lock_guard<std::mutex> lck(queueMutex_);
     assert(!queue_->empty());

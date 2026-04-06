@@ -76,6 +76,13 @@ class DefaultSender : public ImplementorSender<Output> {
       while(!receiver->receive(data)){ cross_platform_yield(); }
     }
   }
+
+  void batchSend(std::vector<std::shared_ptr<Output>> const &datas) override {
+    std::lock_guard<std::mutex> lck(mutex_);
+    for (auto const &receiver : *receivers_) {
+      while(!receiver->batchReceive(datas)){ cross_platform_yield(); }
+    }
+  }
 };
 }
 }

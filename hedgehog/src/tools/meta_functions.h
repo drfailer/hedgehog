@@ -238,9 +238,9 @@ struct LambdaContainerDeducer;
 /// @tparam LambdaTaskType Type of the lambda task (CRTP)
 /// @tparam Inputs Input types of the lambda task
 template<class LambdaTaskType, class ...Inputs>
-struct LambdaContainerDeducer<LambdaTaskType, std::tuple<Inputs...>> { 
+struct LambdaContainerDeducer<LambdaTaskType, std::tuple<Inputs...>> {
     /// @brief Accessor to the type of the lambda container
-    using type = LambdaContainer<LambdaTaskType, Inputs...>; 
+    using type = LambdaContainer<LambdaTaskType, Inputs...>;
 };
 
 /// @brief Helper that gives the type of the lambda container in a lambda task
@@ -277,6 +277,17 @@ constexpr auto typeToStrView() {
 /// @return String containing the name of the type
 template<typename T>
 constexpr auto typeToStr() { return std::string(typeToStrView<T>()); }
+
+template <typename TypeList>
+struct BatchOutputVectorsTypeImpl;
+
+template <typename ...Outputs>
+struct BatchOutputVectorsTypeImpl<std::tuple<Outputs...>> {
+    using type = std::tuple<std::vector<std::shared_ptr<Outputs>>...>;
+};
+
+template <size_t Separator, typename ...AllTypes>
+using BatchOutputVectors_t = typename BatchOutputVectorsTypeImpl<Outputs<Separator, AllTypes...>>::type;
 
 }
 }

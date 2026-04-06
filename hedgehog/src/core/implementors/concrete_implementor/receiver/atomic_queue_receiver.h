@@ -133,6 +133,24 @@ class AtomicQueueReceiver : public ImplementorReceiver<Input> {
     return true;
   }
 
+  bool batchReceive(std::vector<std::shared_ptr<Input>> const &datas) override {
+    while (producerLock_.exchange(true, std::memory_order_acquire));
+
+    for (auto data : datas) {
+      assert(data != nullptr);
+      auto newNode = new Node(data);
+      tail_->next_.store(newNode);
+      tail_ = newNode;
+
+      auto oldQS = queueSize_.fetch_add(1, std::memory_order_relaxed);
+      maxQueueSize_.compare_exchange_strong(oldQS, oldQS + 1, std::memory_order_relaxed);
+    }
+
+    producerLock_.store(false, std::memory_order_release);
+
+    return true;
+  }
+
   /// @brief Get a piece of data from the atomic queue
   /// @param data Reference uses to return the piece of data
   /// @return True

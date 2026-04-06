@@ -73,6 +73,15 @@ class QueueReceiver : public ImplementorReceiver<Input> {
     return true;
   }
 
+  bool batchReceive(std::vector<std::shared_ptr<Input>> const &datas) final {
+    std::lock_guard<std::mutex> lck(queueMutex_);
+    for (auto data : datas) {
+        queue_->push(data);
+    }
+    maxSize_ = std::max(queue_->size(), maxSize_);
+    return true;
+  }
+
   /// @brief Get a data from the queue
   /// @warning The queue should not be empty
   /// @param data Data to get from the queue

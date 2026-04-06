@@ -95,6 +95,8 @@ class ReceiverAbstraction {
   /// @return True if the piece of data has been received, else false.
   bool receive(std::shared_ptr<Input> const inputData) { return concreteReceiver_->receive(inputData); }
 
+  bool batchReceive(std::vector<std::shared_ptr<Input>> const &inputDatas) { return concreteReceiver_->batchReceive(inputDatas); }
+
   /// @brief Get an input data from the concrete receiver implementation
   /// @details If a data is available, it is placed in data
   /// @param data Reference to the data to get from the receiver

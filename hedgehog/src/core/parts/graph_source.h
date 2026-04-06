@@ -63,6 +63,12 @@ class GraphSource :
     static_cast<NotifierAbstraction *>(this)->notify();
   }
 
+  template<class Input>
+  void batchSendAndNotifyAllInputs(std::vector<std::shared_ptr<Input>> const &datas) {
+    static_cast<abstraction::SenderAbstraction<Input> *>(this)->batchSend(datas);
+    static_cast<NotifierAbstraction *>(this)->notify();
+  }
+
   /// @brief Gather source information
   /// @param printer Printer visitor gathering information on nodes
   void print(Printer *printer) {

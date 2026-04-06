@@ -109,6 +109,16 @@ class GraphReceiver : public ImplementorReceiver<Input> {
     return true;
   }
 
+  bool batchReceive(std::vector<std::shared_ptr<Input>> const &datas) override {
+    std::for_each(
+        this->abstractReceivers_->begin(), this->abstractReceivers_->end(),
+        [&datas](abstraction::ReceiverAbstraction<Input> *receiver) {
+          while(!receiver->batchReceive(datas)) { cross_platform_yield(); }
+        }
+    );
+    return true;
+  }
+
   /// @brief Add a sender to add to the graph input nodes
   /// @param sender Sender to add
   void addSender(abstraction::SenderAbstraction<Input> *const sender) override {

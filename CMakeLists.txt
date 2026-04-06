@@ -23,6 +23,8 @@ find_package(TBB QUIET COMPONENTS tbb)
 find_package(Threads REQUIRED)
 find_package(CUDAToolkit QUIET)
 
+add_compile_options("-g")
+
 link_libraries(Threads::Threads)
 
 if (NOT CACHE_LINE_SIZE)
@@ -40,7 +42,7 @@ endif (HH_CX)
 
 if (CUDAToolkit_FOUND)
     message("CUDA found: ${CUDAToolkit_INCLUDE_DIRS}")
-    if (ENABLE_CHECK_CUDA) 
+    if (ENABLE_CHECK_CUDA)
         message("CUDA check enabled")
         add_definitions(-DHH_ENABLE_CHECK_CUDA)
     else (ENABLE_CHECK_CUDA)

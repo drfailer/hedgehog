@@ -72,6 +72,11 @@ class TaskOutputsManagementAbstraction : public NotifierAbstraction, public Send
     static_cast<NotifierAbstraction *>(this)->notify();
   }
 
+  template<tool::ContainsConcept<Outputs...> OutputDataType>
+  void batchSendAndNotify(std::vector<std::shared_ptr<OutputDataType>> const &data) {
+    static_cast<SenderAbstraction<OutputDataType> *>(this)->batchSend(data);
+    static_cast<NotifierAbstraction *>(this)->notify();
+  }
 
  protected:
   /// @brief Copy the inner structure from another task

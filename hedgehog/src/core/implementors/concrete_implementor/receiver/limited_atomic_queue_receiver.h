@@ -132,6 +132,10 @@ class LimitedAtomicQueueReceiver : public ImplementorReceiver<Input> {
     return true;
   }
 
+  bool batchReceive([[maybe_unused]] std::vector<std::shared_ptr<Input>> const &datas) override {
+    throw std::runtime_error("LimitedAtomicQueueReceiver does not support batchReceive.");
+  }
+
   /// @brief Get a piece of data from the limited queue
   /// @warning The operation may fail, the function returns then false
   /// @param data Reference uses to return the piece of data
