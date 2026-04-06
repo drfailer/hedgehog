@@ -66,6 +66,10 @@ class TaskMultiSenders : public MultiSenders<Outputs...> {
     }
   }
 
+  /// @brief Add multiple results and send them to the task successors
+  /// @tparam DataType Type of the data, should be part of the task Output types
+  /// @param data Vector of data of type DataType sent to the task successors
+  /// @throw std::runtime_error The TaskOutputsManagementAbstraction abstraction is not initialized (== nullptr)
   template<tool::MatchOutputTypeConcept<Outputs...> DataType>
   void batchAddResult(std::vector<std::shared_ptr<DataType>> const &data) {
     if (tom_ == nullptr) {

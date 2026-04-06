@@ -23,6 +23,7 @@
 #include "tests_impl/test_state_manager.h"
 #include "tests_impl/test_memory_manager.h"
 #include "tests_impl/test_lambda_task.h"
+#include "tests_impl/test_batch_add_result.h"
 
 #include "tests_impl/compile_time_tests/test_basic.h"
 #include "tests_impl/compile_time_tests/test_critical_path.h"
