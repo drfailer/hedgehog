@@ -44,6 +44,15 @@ class StateMultiSenders : public MultiSenders<Outputs...>, public StateSender<Ou
   template<tool::MatchOutputTypeConcept<Outputs...> DataType>
   void addResult(std::shared_ptr<DataType> data) { StateSender<DataType>::readyList()->push(data); }
 
+  /// @brief Add batc hresult to the ready list
+  /// @tparam DataType Type of the data, should be part of the state Output types
+  /// @param datas Datas of type DataType added to the ready list
+  template<tool::MatchOutputTypeConcept<Outputs...> DataType>
+  void batchAddResult(std::vector<std::shared_ptr<DataType>> const &datas) {
+    for (auto data : datas) {
+      StateSender<DataType>::readyList()->push(data);
+    }
+  }
 };
 }
 }
