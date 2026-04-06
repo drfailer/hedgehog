@@ -330,6 +330,10 @@ class CoreStateManager
     auto &datas = std::get<std::vector<std::shared_ptr<Output>>>(batchOutputBuffers_);
     auto &rdyList = std::static_pointer_cast<behavior::StateSender<Output>>(state_)->readyList();
 
+    if (rdyList->empty()) {
+        return;
+    }
+
     while (!rdyList->empty()) {
         datas.push_back(rdyList->front());
         rdyList->pop();
