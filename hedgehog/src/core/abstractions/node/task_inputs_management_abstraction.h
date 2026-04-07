@@ -55,8 +55,14 @@ class TaskInputsManagementAbstraction :
   std::map<std::string, std::chrono::nanoseconds>
       executionDurationPerInput_, ///< Node execution per input
   dequeueExecutionDurationPerInput_; ///< Node dequeue + execution per input
+                                     ///
+  std::map<std::string, size_t> nbElementsPerInput_; ///< Number of elements received per input
 
-  std::map<std::string, std::size_t> nbElementsPerInput_; ///< Number of elements received per input
+  struct QueueStats {
+      size_t minDequeueCount;
+      size_t maxDequeueCount;
+  };
+  std::map<std::string, QueueStats> dequeueStatsPerInput_; ///< Dequeue stats per input
 
  public:
   using inputs_t = std::tuple<Inputs...>; ///< Accessor to the input types
@@ -142,11 +148,18 @@ class TaskInputsManagementAbstraction :
     (ReceiverAbstraction<Inputs>::printEdgeInformation(printer), ...);
   }
 
+  std::string receiversExtraPrintingInformation() const {
+    std::ostringstream oss;
+    (oss << ... << this->receiverExtraPrintingInformation<Inputs>());
+    return oss.str();
+  }
+
  private:
   /// @brief Access the ReceiverAbstraction of the type InputDataType to process an element
   /// @tparam InputDataType Type of input data
   template<tool::ContainsConcept<Inputs...> InputDataType>
   void operateReceiver(size_t numberThreads) {
+    static std::string typeStr = hh::tool::typeToStr<InputDataType>();
     auto typedReceiver = static_cast<ReceiverAbstraction<InputDataType> *>(this);
     std::chrono::time_point<std::chrono::system_clock>
         start = std::chrono::system_clock::now(),
@@ -156,6 +169,10 @@ class TaskInputsManagementAbstraction :
     // TODO: this count may be wrong if the queue get's dequeued before numberElementsReceived is called
     size_t receiveCount = std::max(1UL, typedReceiver->numberElementsReceived() / numberThreads);
     [[likely]] if (typedReceiver->getInputDatas(datas, receiveCount)) {
+      this->dequeueStatsPerInput_[typeStr].minDequeueCount =
+          std::min(this->dequeueStatsPerInput_[typeStr].minDequeueCount, datas.size());
+      this->dequeueStatsPerInput_[typeStr].maxDequeueCount =
+          std::max(this->dequeueStatsPerInput_[typeStr].maxDequeueCount, datas.size());
       for (auto data : datas) {
         coreTask_->incrementNumberReceivedElements();
         callExecuteForAType(data);
@@ -201,6 +218,7 @@ class TaskInputsManagementAbstraction :
   void initializeMapsExecutionDurationPerInput() {
     static std::string typeStr = hh::tool::typeToStr<Input>();
     this->nbElementsPerInput_[typeStr] = {};
+    this->dequeueStatsPerInput_[typeStr] = {((size_t)-1), 0};
     this->executionDurationPerInput_[typeStr] = {};
     this->dequeueExecutionDurationPerInput_[typeStr] = {};
   }
@@ -222,6 +240,15 @@ class TaskInputsManagementAbstraction :
     this->dequeueExecutionDurationPerInput_.at(InputStr) += exec;
   }
 
+  template <class Input>
+  std::string receiverExtraPrintingInformation() const {
+    static std::string const typeStr = hh::tool::typeToStr<Input>();
+    std::ostringstream oss;
+    oss << typeStr << ": minDequeueCount = " << this->dequeueStatsPerInput_.at(typeStr).minDequeueCount
+        << ", maxDequeueCount = " << this->dequeueStatsPerInput_.at(typeStr).maxDequeueCount
+        << "\n";
+    return oss.str();
+  }
 };
 }
 }
