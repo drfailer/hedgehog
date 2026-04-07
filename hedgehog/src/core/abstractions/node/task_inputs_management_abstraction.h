@@ -60,12 +60,6 @@ class TaskInputsManagementAbstraction :
                                      ///
   std::map<std::string, size_t> nbElementsPerInput_; ///< Number of elements received per input
 
-  struct QueueStats {
-      size_t minDequeueCount;
-      size_t maxDequeueCount;
-  };
-  std::map<std::string, QueueStats> dequeueStatsPerInput_; ///< Dequeue stats per input
-
  public:
   using inputs_t = std::tuple<Inputs...>; ///< Accessor to the input types
 
@@ -150,12 +144,6 @@ class TaskInputsManagementAbstraction :
     (ReceiverAbstraction<Inputs>::printEdgeInformation(printer), ...);
   }
 
-  std::string receiversExtraPrintingInformation() const {
-    std::ostringstream oss;
-    (oss << ... << this->receiverExtraPrintingInformation<Inputs>());
-    return oss.str();
-  }
-
  private:
   /// @brief Access the ReceiverAbstraction of the type InputDataType to process an element
   /// @tparam InputDataType Type of input data
@@ -173,10 +161,6 @@ class TaskInputsManagementAbstraction :
     [[likely]] if (typedReceiver->getInputDatas(datas, receiveCount)) {
       // register the dequeue stats
       incrementDequeueExecutionPerInput<InputDataType>(std::chrono::system_clock::now() - start);
-      this->dequeueStatsPerInput_[typeStr].minDequeueCount =
-          std::min(this->dequeueStatsPerInput_[typeStr].minDequeueCount, datas.size());
-      this->dequeueStatsPerInput_[typeStr].maxDequeueCount =
-          std::max(this->dequeueStatsPerInput_[typeStr].maxDequeueCount, datas.size());
       for (auto data : datas) {
         coreTask_->incrementNumberReceivedElements();
         start = std::chrono::system_clock::now();
@@ -224,7 +208,6 @@ class TaskInputsManagementAbstraction :
   void initializeMapsExecutionDurationPerInput() {
     static std::string typeStr = hh::tool::typeToStr<Input>();
     this->nbElementsPerInput_[typeStr] = {};
-    this->dequeueStatsPerInput_[typeStr] = {((size_t)-1), 0};
     this->executionDurationPerInput_[typeStr] = {};
     this->dequeueExecutionDurationPerInput_[typeStr] = {};
   }
@@ -244,16 +227,6 @@ class TaskInputsManagementAbstraction :
   void incrementDequeueExecutionPerInput(std::chrono::nanoseconds const &exec) {
     static std::string const InputStr = hh::tool::typeToStr<Input>();
     this->dequeueExecutionDurationPerInput_.at(InputStr) += exec;
-  }
-
-  template <class Input>
-  std::string receiverExtraPrintingInformation() const {
-    static std::string const typeStr = hh::tool::typeToStr<Input>();
-    std::ostringstream oss;
-    oss << typeStr << ": minDequeueCount = " << this->dequeueStatsPerInput_.at(typeStr).minDequeueCount
-        << ", maxDequeueCount = " << this->dequeueStatsPerInput_.at(typeStr).maxDequeueCount
-        << "\n";
-    return oss.str();
   }
 };
 }

@@ -298,10 +298,7 @@ class CoreStateManager
   /// @brief Accessor to user-defined extra information for the state-manager
   /// @return User-defined extra information for the state-manager
   [[nodiscard]] std::string extraPrintingInformation() const override {
-    std::ostringstream oss;
-    oss << this->receiversExtraPrintingInformation() << "-------\n";
-    oss << this->stateManager_->extraPrintingInformation();
-    return oss.str();
+    return this->stateManager_->extraPrintingInformation();
   }
 
   /// @brief Accessor to the memory manager

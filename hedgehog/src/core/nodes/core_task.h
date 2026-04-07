@@ -293,10 +293,7 @@ class CoreTask
   /// @brief Accessor to user-defined extra information for the task
   /// @return User-defined extra information for the task
   [[nodiscard]] std::string extraPrintingInformation() const override {
-    std::ostringstream oss;
-    oss << this->receiversExtraPrintingInformation() << "-------\n";
-    oss << this->task_->extraPrintingInformation();
-    return oss.str();
+    return this->task_->extraPrintingInformation();
   }
 
   /// @brief Copy task's inner structure
