@@ -169,13 +169,17 @@ class TaskInputsManagementAbstraction :
     auto &datas = std::get<std::vector<std::shared_ptr<InputDataType>>>(this->localQueues_);
     // TODO: this count may be wrong if the queue get's dequeued before numberElementsReceived is called
     size_t receiveCount = std::max(1UL, typedReceiver->numberElementsReceived() / numberThreads);
+
     [[likely]] if (typedReceiver->getInputDatas(datas, receiveCount)) {
+      // register the dequeue stats
+      incrementDequeueExecutionPerInput<InputDataType>(std::chrono::system_clock::now() - start);
       this->dequeueStatsPerInput_[typeStr].minDequeueCount =
           std::min(this->dequeueStatsPerInput_[typeStr].minDequeueCount, datas.size());
       this->dequeueStatsPerInput_[typeStr].maxDequeueCount =
           std::max(this->dequeueStatsPerInput_[typeStr].maxDequeueCount, datas.size());
       for (auto data : datas) {
         coreTask_->incrementNumberReceivedElements();
+        start = std::chrono::system_clock::now();
         callExecuteForAType(data);
         finish = std::chrono::system_clock::now();
         incrementDequeueExecutionPerInput<InputDataType>(finish - start);
