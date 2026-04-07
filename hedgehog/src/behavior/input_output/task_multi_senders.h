@@ -35,6 +35,8 @@ class TaskMultiSenders : public MultiSenders<Outputs...> {
   std::shared_ptr<core::abstraction::TaskOutputsManagementAbstraction<Outputs...>>
       tom_ = nullptr; ///< Link to the task's core TaskOutputsManagementAbstraction
 
+  std::tuple<std::vector<std::shared_ptr<Outputs>>...> batchSendQueues_; ///< Vector for batch send (bufferResult/flushResults)
+
  public:
   /// @brief Default constructor
   /// @tparam MultiSendersAndNotifier Type of core that has to implement TaskOutputsManagementAbstraction
@@ -71,13 +73,31 @@ class TaskMultiSenders : public MultiSenders<Outputs...> {
   /// @param data Vector of data of type DataType sent to the task successors
   /// @throw std::runtime_error The TaskOutputsManagementAbstraction abstraction is not initialized (== nullptr)
   template<tool::MatchOutputTypeConcept<Outputs...> DataType>
-  void batchAddResult(std::vector<std::shared_ptr<DataType>> const &data) {
+  void batchAddResult(std::vector<std::shared_ptr<DataType>> const &datas) {
     if (tom_ == nullptr) {
       throw std::runtime_error("A sender needs to have the abstraction initialized before used.");
     } else {
-      tom_->batchSendAndNotify(data);
+      tom_->batchSendAndNotify(datas);
     }
   }
+
+  template<tool::MatchOutputTypeConcept<Outputs...> DataType>
+  void bufferResult(std::shared_ptr<DataType> data) {
+    std::get<std::vector<std::shared_ptr<DataType>>>(this->batchSendQueues_).emplace_back(data);
+  }
+
+  template<tool::MatchOutputTypeConcept<Outputs...> DataType>
+  void flushResults() {
+    if (tom_ == nullptr) {
+      throw std::runtime_error("A sender needs to have the abstraction initialized before used.");
+    } else {
+      auto &datas = std::get<std::vector<std::shared_ptr<DataType>>>(this->batchSendQueues_);
+      tom_->batchSendAndNotify(datas);
+      datas.clear();
+    }
+  }
+
+  void flushResults() { (flushResults<Outputs>(), ...); }
 };
 }
 }

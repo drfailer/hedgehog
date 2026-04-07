@@ -31,6 +31,9 @@ namespace behavior {
 /// @tparam Outputs Types of data the state sends
 template<class ...Outputs>
 class StateMultiSenders : public MultiSenders<Outputs...>, public StateSender<Outputs>... {
+ private:
+  std::tuple<std::vector<std::shared_ptr<Outputs>>...> batchSendQueues_; ///< Vector for batch send (bufferResult/flushResults)
+
  public:
   /// @brief Default constructor
   StateMultiSenders() = default;
@@ -53,6 +56,23 @@ class StateMultiSenders : public MultiSenders<Outputs...>, public StateSender<Ou
       StateSender<DataType>::readyList()->push(data);
     }
   }
+
+  template<tool::MatchOutputTypeConcept<Outputs...> DataType>
+  void bufferResult(std::shared_ptr<DataType> data) {
+    std::get<std::vector<std::shared_ptr<DataType>>>(this->batchSendQueues_).emplace_back(data);
+  }
+
+
+  template<tool::MatchOutputTypeConcept<Outputs...> DataType>
+  void flushResults() {
+    auto &datas = std::get<std::vector<std::shared_ptr<DataType>>>(this->batchSendQueues_);
+    for (auto data : datas) {
+      StateSender<DataType>::readyList()->push(data);
+    }
+    datas.clear();
+  }
+
+  void flushResults() { (flushResults<Outputs>(), ...); }
 };
 }
 }
