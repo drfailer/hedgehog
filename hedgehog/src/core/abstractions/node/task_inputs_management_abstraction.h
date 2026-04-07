@@ -159,8 +159,9 @@ class TaskInputsManagementAbstraction :
     size_t receiveCount = std::max(1UL, typedReceiver->numberElementsReceived() / numberThreads);
 
     [[likely]] if (typedReceiver->getInputDatas(datas, receiveCount)) {
-      // register the dequeue stats
-      incrementDequeueExecutionPerInput<InputDataType>(std::chrono::system_clock::now() - start);
+      finish = std::chrono::system_clock::now();
+      incrementDequeueExecutionPerInput<InputDataType>(finish - start);
+      coreTask_->incrementDequeueExecutionDuration(finish - start);
       for (auto data : datas) {
         coreTask_->incrementNumberReceivedElements();
         start = std::chrono::system_clock::now();
