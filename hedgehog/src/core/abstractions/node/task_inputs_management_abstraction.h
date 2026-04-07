@@ -124,7 +124,7 @@ class TaskInputsManagementAbstraction :
   [[nodiscard]] bool canTerminate() override { return canTerminateNode_->canTerminate(); }
 
   /// @brief Access all the task receivers to process an element
-  void operateReceivers() { (this->operateReceiver<Inputs>(), ...); }
+  void operateReceivers(size_t numberThreads = 1) { (this->operateReceiver<Inputs>(numberThreads), ...); }
 
   /// @brief Call for all types the user-defined execute method with nullptr as data
   void callAllExecuteWithNullptr() { (callExecuteForATypeWithNullptr<Inputs>(), ...); }
@@ -146,18 +146,23 @@ class TaskInputsManagementAbstraction :
   /// @brief Access the ReceiverAbstraction of the type InputDataType to process an element
   /// @tparam InputDataType Type of input data
   template<tool::ContainsConcept<Inputs...> InputDataType>
-  void operateReceiver() {
+  void operateReceiver(size_t numberThreads) {
     auto typedReceiver = static_cast<ReceiverAbstraction<InputDataType> *>(this);
     std::chrono::time_point<std::chrono::system_clock>
         start = std::chrono::system_clock::now(),
         finish;
-    std::shared_ptr<InputDataType> data = nullptr;
-    [[likely]] if (typedReceiver->getInputData(data)) {
-      coreTask_->incrementNumberReceivedElements();
-      callExecuteForAType(data);
-      finish = std::chrono::system_clock::now();
-      incrementDequeueExecutionPerInput<InputDataType>(finish - start);
-      coreTask_->incrementDequeueExecutionDuration(finish - start);
+    // TODO: optimize this vector
+    std::vector<std::shared_ptr<InputDataType>> datas;
+    // TODO: this count may be wrong if the queue get's dequeued before numberElementsReceived is called
+    size_t receiveCount = std::max(1UL, typedReceiver->numberElementsReceived() / numberThreads);
+    [[likely]] if (typedReceiver->getInputDatas(datas, receiveCount)) {
+      for (auto data : datas) {
+        coreTask_->incrementNumberReceivedElements();
+        callExecuteForAType(data);
+        finish = std::chrono::system_clock::now();
+        incrementDequeueExecutionPerInput<InputDataType>(finish - start);
+        coreTask_->incrementDequeueExecutionDuration(finish - start);
+      }
     }
   }
 

@@ -103,6 +103,8 @@ class ReceiverAbstraction {
   /// @return True if a data is available, else false
   bool getInputData(std::shared_ptr<Input> &data) { return concreteReceiver_->getInputData(data); }
 
+  bool getInputDatas(std::vector<std::shared_ptr<Input>> &datas, size_t count) { return concreteReceiver_->getInputDatas(datas, count); }
+
   /// @brief Accessor to the current number of input data received and waiting to be processed
   /// @return The current number of input data received and waiting to be processed
   [[nodiscard]] size_t numberElementsReceived() { return concreteReceiver_->numberElementsReceived(); }

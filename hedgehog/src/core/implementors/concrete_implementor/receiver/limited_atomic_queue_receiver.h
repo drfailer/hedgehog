@@ -153,6 +153,12 @@ class LimitedAtomicQueueReceiver : public ImplementorReceiver<Input> {
     }
   }
 
+  // this one is not supported here
+  bool getInputDatas(std::vector<std::shared_ptr<Input>> &datas, [[maybe_unused]] size_t count) override {
+      datas.resize(1, nullptr);
+      return getInputData(datas[0]);
+  }
+
   /// @brief Get the "current size" of the queue
   /// @details Current size is deduced from the head and tail pointers, both atomic values.
   /// @return Current queue size

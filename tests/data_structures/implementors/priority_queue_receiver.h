@@ -63,6 +63,14 @@ class PriorityQueueReceiver : public hh::core::implementor::ImplementorReceiver<
     queue_->pop();
     return true;
   }
+  [[nodiscard]] bool getInputDatas(std::vector<std::shared_ptr<Input>> &datas, size_t count) override {
+    std::lock_guard<std::mutex> lck(queueMutex_);
+    for (size_t i = 0; i < count && !queue_->empty(); ++i) {
+        datas.emplace_back(std::move(queue_->top()));
+        queue_->pop();
+    }
+    return !datas.empty();
+  }
   [[nodiscard]] size_t numberElementsReceived() override {
     std::lock_guard<std::mutex> lck(queueMutex_);
     return queue_->size();

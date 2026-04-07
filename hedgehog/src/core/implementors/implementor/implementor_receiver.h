@@ -99,6 +99,8 @@ class ImplementorReceiver {
   /// @return True if a data is available, else false
   [[nodiscard]] virtual bool getInputData(std::shared_ptr<Input> &data) = 0;
 
+  [[nodiscard]] virtual bool getInputDatas(std::vector<std::shared_ptr<Input>> &datas, size_t count) = 0;
+
   /// @brief Accessor to number of data waiting to be processed in the queue
   /// @return Number of data waiting to be processed in the queue
   [[nodiscard]] virtual size_t numberElementsReceived() = 0;
