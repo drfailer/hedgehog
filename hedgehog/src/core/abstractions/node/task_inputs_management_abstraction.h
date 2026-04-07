@@ -51,6 +51,8 @@ class TaskInputsManagementAbstraction :
   TaskNodeAbstraction *const coreTask_ = nullptr; ///< Accessor to the core task
   hh::behavior::CanTerminate *const canTerminateNode_ = nullptr; ///< Accessor to the can terminate abstraction
 
+  std::tuple<std::vector<std::shared_ptr<Inputs>>...> localQueues_;
+
  protected:
   std::map<std::string, std::chrono::nanoseconds>
       executionDurationPerInput_, ///< Node execution per input
@@ -164,8 +166,7 @@ class TaskInputsManagementAbstraction :
     std::chrono::time_point<std::chrono::system_clock>
         start = std::chrono::system_clock::now(),
         finish;
-    // TODO: optimize this vector
-    std::vector<std::shared_ptr<InputDataType>> datas;
+    auto &datas = std::get<std::vector<std::shared_ptr<InputDataType>>>(this->localQueues_);
     // TODO: this count may be wrong if the queue get's dequeued before numberElementsReceived is called
     size_t receiveCount = std::max(1UL, typedReceiver->numberElementsReceived() / numberThreads);
     [[likely]] if (typedReceiver->getInputDatas(datas, receiveCount)) {
@@ -180,6 +181,7 @@ class TaskInputsManagementAbstraction :
         incrementDequeueExecutionPerInput<InputDataType>(finish - start);
         coreTask_->incrementDequeueExecutionDuration(finish - start);
       }
+      datas.clear();
     }
   }
 
