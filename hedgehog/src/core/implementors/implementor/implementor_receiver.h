@@ -105,6 +105,10 @@ class ImplementorReceiver {
   /// @return Number of data waiting to be processed in the queue
   [[nodiscard]] virtual size_t numberElementsReceived() = 0;
 
+  /// @brief Returns the queue size after the last receive.
+  /// @return Queue size after the last receive.
+  [[nodiscard]] virtual size_t queueSizeAfterLastReceive() = 0;
+
   /// @brief Accessor to the maximum number of data waiting to be processed in the queue during the whole execution
   /// @return Maximum number of data waiting to be processed in the queue during the whole execution
   [[nodiscard]] virtual size_t maxNumberElementsReceived() const = 0;

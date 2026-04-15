@@ -109,6 +109,10 @@ class ReceiverAbstraction {
   /// @return The current number of input data received and waiting to be processed
   [[nodiscard]] size_t numberElementsReceived() { return concreteReceiver_->numberElementsReceived(); }
 
+  /// @brief Returns the queue size after the last receive.
+  /// @return Queue size after the last receive.
+  [[nodiscard]] size_t queueSizeAfterLastReceive() { return concreteReceiver_->queueSizeAfterLastReceive(); }
+
   /// @brief Accessor to the maximum number of input data received and waiting to be processed
   /// @return The maximum number of input data received and waiting to be processed
   [[nodiscard]] size_t maxNumberElementsReceived() const { return concreteReceiver_->maxNumberElementsReceived();}

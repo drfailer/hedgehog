@@ -155,8 +155,8 @@ class TaskInputsManagementAbstraction :
         start = std::chrono::system_clock::now(),
         finish;
     auto &datas = std::get<std::vector<std::shared_ptr<InputDataType>>>(this->localQueues_);
-    // TODO: this count may be wrong if the queue get's dequeued before numberElementsReceived is called
-    size_t receiveCount = std::max(1UL, typedReceiver->numberElementsReceived() / numberThreads);
+    // NOTE: not sure if this receiveCount is always accurate
+    size_t receiveCount = std::max(1UL, typedReceiver->queueSizeAfterLastReceive() / numberThreads);
 
     [[likely]] if (typedReceiver->getInputDatas(datas, receiveCount)) {
       finish = std::chrono::system_clock::now();

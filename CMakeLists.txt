@@ -23,8 +23,6 @@ find_package(TBB QUIET COMPONENTS tbb)
 find_package(Threads REQUIRED)
 find_package(CUDAToolkit QUIET)
 
-add_compile_options("-g")
-
 link_libraries(Threads::Threads)
 
 if (NOT CACHE_LINE_SIZE)

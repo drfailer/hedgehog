@@ -83,6 +83,9 @@ class LimitedAtomicQueueReceiver : public ImplementorReceiver<Input> {
   alignas(CACHE_LINE_SIZE)
   std::atomic_flag senderAccessFlag_{}; ///< Flag to protect access to the list of senders
 
+  alignas(CACHE_LINE_SIZE)
+  size_t queueSizeAfterLastReceive_ = 0; ///< Track the queue size on reception.
+
  public:
   /// @brief Default constructor
   LimitedAtomicQueueReceiver() : senders_(std::make_unique<std::set<abstraction::SenderAbstraction<Input> *>>()) {}
@@ -128,6 +131,7 @@ class LimitedAtomicQueueReceiver : public ImplementorReceiver<Input> {
     if (diff > 0) {
       auto const prevSize = static_cast<size_t>(diff);
       if (prevSize > maxSize_.load(std::memory_order_acquire)) { maxSize_.store(prevSize, std::memory_order_release); }
+      queueSizeAfterLastReceive_ = prevSize;
     }
     return true;
   }
@@ -181,6 +185,10 @@ class LimitedAtomicQueueReceiver : public ImplementorReceiver<Input> {
   /// @brief Accessor to the maximum filling size during the queue lifetime
   /// @return Maximum filling size during the queue lifetime
   [[nodiscard]] size_t maxNumberElementsReceived() const override { return maxSize_.load(std::memory_order_relaxed); }
+
+  /// @brief Accessor to the maximum number of data waiting to be processed in the queue during the whole execution
+  /// @return Maximum number of data waiting to be processed in the queue during the whole execution
+  [[nodiscard]] virtual size_t queueSizeAfterLastReceive() override { return queueSizeAfterLastReceive_; }
 
   /// @brief Test if the receiver is empty or not
   /// @return True if the receiver is empty, else false

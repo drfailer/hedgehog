@@ -70,6 +70,9 @@ class AtomicQueueReceiver : public ImplementorReceiver<Input> {
   alignas(CACHE_LINE_SIZE)
   std::atomic_flag senderAccessFlag_{}; ///< Flag to protect access to the list of senders
 
+  alignas(CACHE_LINE_SIZE)
+  size_t queueSizeAfterLastReceive_ = 0; ///< Track the queue size on reception.
+
  public:
   /// @brief Default constructor
   /// @details Initialize the queue with a default node with no data (nullptr)
@@ -127,6 +130,7 @@ class AtomicQueueReceiver : public ImplementorReceiver<Input> {
 
     auto oldQS = queueSize_.fetch_add(1, std::memory_order_relaxed);
     maxQueueSize_.compare_exchange_strong(oldQS, oldQS + 1, std::memory_order_relaxed);
+    queueSizeAfterLastReceive_ = oldQS + 1;
 
     producerLock_.store(false, std::memory_order_release);
 
@@ -144,6 +148,7 @@ class AtomicQueueReceiver : public ImplementorReceiver<Input> {
 
       auto oldQS = queueSize_.fetch_add(1, std::memory_order_relaxed);
       maxQueueSize_.compare_exchange_strong(oldQS, oldQS + 1, std::memory_order_relaxed);
+      queueSizeAfterLastReceive_ = oldQS + 1;
     }
 
     producerLock_.store(false, std::memory_order_release);
@@ -203,6 +208,12 @@ class AtomicQueueReceiver : public ImplementorReceiver<Input> {
   /// @return Maximum filling size during the queue lifetime
   [[nodiscard]] size_t maxNumberElementsReceived() const override {
     return static_cast<size_t>(maxQueueSize_.load());
+  }
+
+  /// @brief Accessor to the maximum filling size during the queue lifetime
+  /// @return Maximum filling size during the queue lifetime
+  [[nodiscard]] size_t queueSizeAfterLastReceive() override {
+    return queueSizeAfterLastReceive_;
   }
 
   /// @brief Test if the receiver is empty or not

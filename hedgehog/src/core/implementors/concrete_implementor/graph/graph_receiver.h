@@ -59,6 +59,13 @@ class GraphReceiver : public ImplementorReceiver<Input> {
                              "used to transfer data to input nodes.");
   }
 
+  /// @brief Returns the queue size after the last receive.
+  /// @return Queue size after the last receive.
+  [[nodiscard]] virtual size_t queueSizeAfterLastReceive() override {
+    throw std::runtime_error("It is not possible to get the number of input data from the graph receiver as it is only "
+                             "used to transfer data to input nodes.");
+  }
+
   /// @brief Do nothing, throw an error, a graph does not receive data, its input nodes do
   /// @return Nothing, throw a std::runtime_error
   /// @throw std::runtime_error It is not possible to get the number of input data from the graph receiver as it is only
