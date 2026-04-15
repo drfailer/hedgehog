@@ -57,7 +57,7 @@ class TaskInputsManagementAbstraction :
   std::map<std::string, std::chrono::nanoseconds>
       executionDurationPerInput_, ///< Node execution per input
   dequeueExecutionDurationPerInput_; ///< Node dequeue + execution per input
-                                     ///
+
   std::map<std::string, size_t> nbElementsPerInput_; ///< Number of elements received per input
 
  public:
