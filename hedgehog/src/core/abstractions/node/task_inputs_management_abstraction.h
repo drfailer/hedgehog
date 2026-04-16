@@ -151,6 +151,10 @@ class TaskInputsManagementAbstraction :
   void operateReceiver(size_t numberThreads) {
     static std::string typeStr = hh::tool::typeToStr<InputDataType>();
     auto typedReceiver = static_cast<ReceiverAbstraction<InputDataType> *>(this);
+    if (typedReceiver->numberElementsReceived() == 0) {
+        // don't lock the queue if it's already empty
+        return;
+    }
     std::chrono::time_point<std::chrono::system_clock>
         start = std::chrono::system_clock::now(),
         finish;
