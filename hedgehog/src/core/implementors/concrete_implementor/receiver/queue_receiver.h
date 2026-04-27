@@ -100,15 +100,6 @@ class QueueReceiver : public ImplementorReceiver<Input> {
     return ret;
   }
 
-  [[nodiscard]] bool getInputDatas(std::vector<std::shared_ptr<Input>> &datas, size_t count) override {
-    std::lock_guard<std::mutex> lck(queueMutex_);
-    for (size_t i = 0; i < count && !queue_->empty(); ++i) {
-      datas.emplace_back(std::move(queue_->front()));
-      queue_->pop();
-    }
-    return !datas.empty();
-  }
-
   /// @brief Accessor to the current size of the queue
   /// @return Current size of the queue
   [[nodiscard]] size_t numberElementsReceived() override {

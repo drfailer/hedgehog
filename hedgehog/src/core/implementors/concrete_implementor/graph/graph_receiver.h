@@ -94,11 +94,6 @@ class GraphReceiver : public ImplementorReceiver<Input> {
                              "transfer data to input nodes.");
   }
 
-  bool getInputDatas([[maybe_unused]]std::vector<std::shared_ptr<Input>> &datas, [[maybe_unused]]size_t count) override {
-    throw std::runtime_error("It is not possible to get input data from the graph receiver as it is only used to "
-                             "transfer data to input nodes.");
-  }
-
   /// @brief Do nothing, throw an error, a graph is not really connected to other nodes
   /// @return Nothing, throw a std::runtime_error
   /// @throw std::runtime_error A graph is not connected to any senders

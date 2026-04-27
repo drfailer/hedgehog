@@ -180,24 +180,6 @@ class AtomicQueueReceiver : public ImplementorReceiver<Input> {
     return false;
   }
 
-  bool getInputDatas(std::vector<std::shared_ptr<Input>> &datas, size_t count) override {
-    while (consumerLock_.exchange(true, std::memory_order_acquire));
-
-    for (size_t i = 0; i < count; ++i) {
-      auto next = head_->next_.load();
-      [[unlikely]] if (next == nullptr) {
-          break;
-      }
-      auto oldFirst = head_;
-      head_ = next;
-      datas.emplace_back(std::move(head_->data_));
-      delete oldFirst;
-    }
-    queueSize_.fetch_sub(datas.size(), std::memory_order_relaxed);
-    consumerLock_.store(false, std::memory_order_release);
-    return !datas.empty();
-  }
-
   /// @brief Get the "current size" of the queue
   /// @return Current queue size
   size_t numberElementsReceived() override {
