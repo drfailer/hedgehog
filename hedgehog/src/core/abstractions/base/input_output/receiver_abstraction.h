@@ -95,6 +95,10 @@ class ReceiverAbstraction {
   /// @return True if the piece of data has been received, else false.
   bool receive(std::shared_ptr<Input> const inputData) { return concreteReceiver_->receive(inputData); }
 
+  /// @brief Receive multiple pieces of data
+  /// @details Receive multiple pieces of data and transmit them to the concrete receiver implementation.
+  /// @param inputDatas Datas to transmit to the implementation
+  /// @return True if then data has been received, else false.
   bool batchReceive(std::vector<std::shared_ptr<Input>> const &inputDatas) { return concreteReceiver_->batchReceive(inputDatas); }
 
   /// @brief Get an input data from the concrete receiver implementation
@@ -106,10 +110,6 @@ class ReceiverAbstraction {
   /// @brief Accessor to the current number of input data received and waiting to be processed
   /// @return The current number of input data received and waiting to be processed
   [[nodiscard]] size_t numberElementsReceived() { return concreteReceiver_->numberElementsReceived(); }
-
-  /// @brief Returns the queue size after the last receive.
-  /// @return Queue size after the last receive.
-  [[nodiscard]] size_t queueSizeAfterLastReceive() { return concreteReceiver_->queueSizeAfterLastReceive(); }
 
   /// @brief Accessor to the maximum number of input data received and waiting to be processed
   /// @return The maximum number of input data received and waiting to be processed

@@ -86,7 +86,8 @@ class CoreStateManager
   bool const
       automaticStart_ = false; ///< Flag for automatic start
 
-  tool::BatchOutputVectors_t<Separator, AllTypes...> batchOutputBuffers_;
+  tool::BatchOutputVectors_t<Separator, AllTypes...>
+      batchOutputBuffers_; ///< Buffer used for batch send, stored here to limit allocations.
 
  public:
   /// @brief Construct a state manager from the user state manager and its state
@@ -335,6 +336,12 @@ class CoreStateManager
     }
 
     while (!rdyList->empty()) {
+        // NOTE(RC): Since we don't have a way to predict the required buffer
+        // size before hand, we allow the buffer to grow here, however, it has
+        // to be a class member to avoid reallocation each time this function
+        // is called. Another solution would be to use a
+        // `std::pmr::monotonic_buffer_resource` to allocated a temporary
+        // vector on the stack, but I'm not sure that it is worth it in this case.
         datas.push_back(rdyList->front());
         rdyList->pop();
     }

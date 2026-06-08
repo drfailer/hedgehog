@@ -68,6 +68,9 @@ class GraphSender : public ImplementorSender<Output> {
     throw std::runtime_error("A graph has no connected ReceiverAbstraction by itself");
   }
 
+  /// @brief Do nothing, throw an error, a graph is not really connected to other nodes
+  /// @param datas not used data
+  /// @throw std::runtime_error A graph has no connected ReceiverAbstraction by itself.
   void batchSend([[maybe_unused]] std::vector<std::shared_ptr<Output>> const &datas) override {
     throw std::runtime_error("A graph has no connected ReceiverAbstraction by itself");
   }

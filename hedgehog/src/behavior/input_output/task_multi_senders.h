@@ -35,7 +35,8 @@ class TaskMultiSenders : public MultiSenders<Outputs...> {
   std::shared_ptr<core::abstraction::TaskOutputsManagementAbstraction<Outputs...>>
       tom_ = nullptr; ///< Link to the task's core TaskOutputsManagementAbstraction
 
-  std::tuple<std::vector<std::shared_ptr<Outputs>>...> batchSendQueues_; ///< Vector for batch send (bufferResult/flushResults)
+  std::tuple<std::vector<std::shared_ptr<Outputs>>...>
+      batchSendQueues_ = {}; ///< Vector for batch send (bufferResult/flushResults)
 
  public:
   /// @brief Default constructor
@@ -81,11 +82,16 @@ class TaskMultiSenders : public MultiSenders<Outputs...> {
     }
   }
 
+  /// @brief Buffer a new result (not sent yet)
+  /// @tparam DataType Type of the data, should be part of the task Output types
+  /// @param data Vector of data of type DataType that will be sent to the task successors when `flushResult` is called.
   template<tool::MatchOutputTypeConcept<Outputs...> DataType>
   void bufferResult(std::shared_ptr<DataType> data) {
     std::get<std::vector<std::shared_ptr<DataType>>>(this->batchSendQueues_).emplace_back(data);
   }
 
+  /// @brief Send all the buffered result to the successors.
+  /// @tparam DataType Type to flush.
   template<tool::MatchOutputTypeConcept<Outputs...> DataType>
   void flushResults() {
     if (tom_ == nullptr) {
@@ -97,6 +103,7 @@ class TaskMultiSenders : public MultiSenders<Outputs...> {
     }
   }
 
+  // @brief Call `flushResults` for all the types.
   void flushResults() { (flushResults<Outputs>(), ...); }
 };
 }

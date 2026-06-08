@@ -77,6 +77,8 @@ class DefaultSender : public ImplementorSender<Output> {
     }
   }
 
+  /// @brief Send pieces of data to all connected receivers
+  /// @param datas Datas to send
   void batchSend(std::vector<std::shared_ptr<Output>> const &datas) override {
     std::lock_guard<std::mutex> lck(mutex_);
     for (auto const &receiver : *receivers_) {

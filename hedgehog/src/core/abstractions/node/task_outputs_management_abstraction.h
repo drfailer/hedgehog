@@ -72,9 +72,12 @@ class TaskOutputsManagementAbstraction : public NotifierAbstraction, public Send
     static_cast<NotifierAbstraction *>(this)->notify();
   }
 
+  /// @brief Send pieces of data and notify the successors
+  /// @tparam OutputDataType Type of data
+  /// @param datas Datas to send
   template<tool::ContainsConcept<Outputs...> OutputDataType>
-  void batchSendAndNotify(std::vector<std::shared_ptr<OutputDataType>> const &data) {
-    static_cast<SenderAbstraction<OutputDataType> *>(this)->batchSend(data);
+  void batchSendAndNotify(std::vector<std::shared_ptr<OutputDataType>> const &datas) {
+    static_cast<SenderAbstraction<OutputDataType> *>(this)->batchSend(datas);
     static_cast<NotifierAbstraction *>(this)->notify();
   }
 

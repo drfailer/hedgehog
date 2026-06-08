@@ -78,6 +78,8 @@ class ImplementorSender {
   /// @param data Data to send
   virtual void send(std::shared_ptr<Output> data) = 0;
 
+  /// @brief Send datas to successor node
+  /// @param datas Datas to send
   virtual void batchSend(std::vector<std::shared_ptr<Output>> const &datas) = 0;
 };
 }

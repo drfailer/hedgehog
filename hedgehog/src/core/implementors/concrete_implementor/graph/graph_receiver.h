@@ -59,13 +59,6 @@ class GraphReceiver : public ImplementorReceiver<Input> {
                              "used to transfer data to input nodes.");
   }
 
-  /// @brief Returns the queue size after the last receive.
-  /// @return Queue size after the last receive.
-  [[nodiscard]] virtual size_t queueSizeAfterLastReceive() override {
-    throw std::runtime_error("It is not possible to get the number of input data from the graph receiver as it is only "
-                             "used to transfer data to input nodes.");
-  }
-
   /// @brief Do nothing, throw an error, a graph does not receive data, its input nodes do
   /// @return Nothing, throw a std::runtime_error
   /// @throw std::runtime_error It is not possible to get the number of input data from the graph receiver as it is only
@@ -116,6 +109,10 @@ class GraphReceiver : public ImplementorReceiver<Input> {
     return true;
   }
 
+  /// @brief Receive multiple pieces of data
+  /// @details Receive multiple pieces of data and transmit them to the concrete receiver implementation.
+  /// @param inputDatas Datas to transmit to the implementation
+  /// @return True if then data has been received, else false.
   bool batchReceive(std::vector<std::shared_ptr<Input>> const &datas) override {
     std::for_each(
         this->abstractReceivers_->begin(), this->abstractReceivers_->end(),

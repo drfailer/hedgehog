@@ -278,14 +278,21 @@ constexpr auto typeToStrView() {
 template<typename T>
 constexpr auto typeToStr() { return std::string(typeToStrView<T>()); }
 
+/// @brief BatchOutputVectorsTypeImpl declaration.
+/// @tparam TypeList List of types.
 template <typename TypeList>
 struct BatchOutputVectorsTypeImpl;
 
+/// @brief BatchOutputVectorsTypeImpl implementation for tuple.
+/// @tparam Outputs List of output types.
 template <typename ...Outputs>
 struct BatchOutputVectorsTypeImpl<std::tuple<Outputs...>> {
     using type = std::tuple<std::vector<std::shared_ptr<Outputs>>...>;
 };
 
+/// @brief Create the type of a tuple of vectors of output data (used by the core state).
+/// @tparam Separator Separator position between input types and output types
+/// @tparam AllTypes List of input and output types
 template <size_t Separator, typename ...AllTypes>
 using BatchOutputVectors_t = typename BatchOutputVectorsTypeImpl<Outputs<Separator, AllTypes...>>::type;
 

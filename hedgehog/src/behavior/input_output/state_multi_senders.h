@@ -47,7 +47,7 @@ class StateMultiSenders : public MultiSenders<Outputs...>, public StateSender<Ou
   template<tool::MatchOutputTypeConcept<Outputs...> DataType>
   void addResult(std::shared_ptr<DataType> data) { StateSender<DataType>::readyList()->push(data); }
 
-  /// @brief Add batc hresult to the ready list
+  /// @brief Add batch result to the ready list
   /// @tparam DataType Type of the data, should be part of the state Output types
   /// @param datas Datas of type DataType added to the ready list
   template<tool::MatchOutputTypeConcept<Outputs...> DataType>
@@ -57,12 +57,16 @@ class StateMultiSenders : public MultiSenders<Outputs...>, public StateSender<Ou
     }
   }
 
+  /// @brief Buffer a new result (do not send yet)
+  /// @tparam DataType Type of the data, should be part of the state Output types
+  /// @param data Data of type DataType that is buffered
   template<tool::MatchOutputTypeConcept<Outputs...> DataType>
   void bufferResult(std::shared_ptr<DataType> data) {
     std::get<std::vector<std::shared_ptr<DataType>>>(this->batchSendQueues_).emplace_back(data);
   }
 
-
+  /// @brief Send all the buffered data of a specific type.
+  /// @tparam DataType Type of the data that is sent, should be part of the state Output types
   template<tool::MatchOutputTypeConcept<Outputs...> DataType>
   void flushResults() {
     auto &datas = std::get<std::vector<std::shared_ptr<DataType>>>(this->batchSendQueues_);
@@ -72,6 +76,7 @@ class StateMultiSenders : public MultiSenders<Outputs...>, public StateSender<Ou
     datas.clear();
   }
 
+  // @brief Call `flushResults` for all the types.
   void flushResults() { (flushResults<Outputs>(), ...); }
 };
 }

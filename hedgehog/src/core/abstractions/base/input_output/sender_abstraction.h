@@ -89,6 +89,8 @@ class SenderAbstraction {
   /// @param data Data to send to successor node or output of the graph
   void send(std::shared_ptr<Output> data) { concreteSender_->send(data); }
 
+  /// @brief Send datas as output of the node
+  /// @param datas Datas to send to successor node or output of the graph
   void batchSend(std::vector<std::shared_ptr<Output>> const &datas) { concreteSender_->batchSend(datas); }
 
  protected:

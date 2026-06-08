@@ -36,8 +36,6 @@ class PriorityQueueReceiver : public hh::core::implementor::ImplementorReceiver<
 
   size_t
       maxSize_ = 0; ///< Maximum size attained by the queue
-  size_t
-      queueSizeAfterLastReceive_ = 0; ///< Track the queue size on reception.
 
   std::mutex queueMutex_{}, sendersMutex_{};
  public:
@@ -48,7 +46,6 @@ class PriorityQueueReceiver : public hh::core::implementor::ImplementorReceiver<
     std::lock_guard<std::mutex> lck(queueMutex_);
     queue_->push(data);
     maxSize_ = std::max(queue_->size(), maxSize_);
-    queueSizeAfterLastReceive_ = queue_->size();
     return true;
   }
   bool batchReceive(std::vector<std::shared_ptr<Input>> const &datas) final {
@@ -57,7 +54,6 @@ class PriorityQueueReceiver : public hh::core::implementor::ImplementorReceiver<
       queue_->push(data);
     }
     maxSize_ = std::max(queue_->size(), maxSize_);
-    queueSizeAfterLastReceive_ = queue_->size();
     return true;
   }
   [[nodiscard]] bool getInputData(std::shared_ptr<Input> &data) override {
@@ -71,7 +67,6 @@ class PriorityQueueReceiver : public hh::core::implementor::ImplementorReceiver<
     std::lock_guard<std::mutex> lck(queueMutex_);
     return queue_->size();
   }
-  [[nodiscard]] size_t queueSizeAfterLastReceive() override { return queueSizeAfterLastReceive_; }
   [[nodiscard]] size_t maxNumberElementsReceived() const override { return maxSize_; }
 
   [[nodiscard]] bool empty() override {

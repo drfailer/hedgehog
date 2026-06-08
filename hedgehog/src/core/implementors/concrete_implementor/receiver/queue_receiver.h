@@ -49,7 +49,6 @@ class QueueReceiver : public ImplementorReceiver<Input> {
       senders_ = nullptr; ///< List of senders attached to this receiver
 
   size_t maxSize_ = 0; ///< Maximum size attained by the queue
-  size_t queueSizeAfterLastReceive_ = 0; ///< Track the queue size on reception.
 
   std::mutex
     queueMutex_{}, ///< Mutex protecting the queue from multiple access
@@ -71,17 +70,18 @@ class QueueReceiver : public ImplementorReceiver<Input> {
     std::lock_guard<std::mutex> lck(queueMutex_);
     queue_->push(data);
     maxSize_ = std::max(queue_->size(), maxSize_);
-    queueSizeAfterLastReceive_ = queue_->size();
     return true;
   }
 
+  /// @brief Receive datas and store them in the queue (only lock the queue once)
+  /// @param datas Datas to store
+  /// @return True
   bool batchReceive(std::vector<std::shared_ptr<Input>> const &datas) final {
     std::lock_guard<std::mutex> lck(queueMutex_);
     for (auto data : datas) {
         queue_->push(data);
     }
     maxSize_ = std::max(queue_->size(), maxSize_);
-    queueSizeAfterLastReceive_ = queue_->size();
     return true;
   }
 
@@ -106,10 +106,6 @@ class QueueReceiver : public ImplementorReceiver<Input> {
 //    std::lock_guard<std::mutex> lck(sendersMutex_);
     return queue_->size();
   }
-
-  /// @brief Accessor to the maximum number of data waiting to be processed in the queue during the whole execution
-  /// @return Maximum number of data waiting to be processed in the queue during the whole execution
-  [[nodiscard]] size_t queueSizeAfterLastReceive() override { return queueSizeAfterLastReceive_; }
 
   /// @brief Accessor to the maximum queue size
   /// @return Maximum queue size

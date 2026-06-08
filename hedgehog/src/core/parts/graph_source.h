@@ -63,6 +63,9 @@ class GraphSource :
     static_cast<NotifierAbstraction *>(this)->notify();
   }
 
+  /// @brief Send pieces of data to all input nodes and notify them
+  /// @tparam Input Input data type
+  /// @param datas Input datas
   template<class Input>
   void batchSendAndNotifyAllInputs(std::vector<std::shared_ptr<Input>> const &datas) {
     static_cast<abstraction::SenderAbstraction<Input> *>(this)->batchSend(datas);

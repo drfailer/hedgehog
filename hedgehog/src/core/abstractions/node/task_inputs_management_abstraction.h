@@ -51,14 +51,12 @@ class TaskInputsManagementAbstraction :
   TaskNodeAbstraction *const coreTask_ = nullptr; ///< Accessor to the core task
   hh::behavior::CanTerminate *const canTerminateNode_ = nullptr; ///< Accessor to the can terminate abstraction
 
-  std::tuple<std::vector<std::shared_ptr<Inputs>>...> localQueues_;
-
  protected:
   std::map<std::string, std::chrono::nanoseconds>
       executionDurationPerInput_, ///< Node execution per input
   dequeueExecutionDurationPerInput_; ///< Node dequeue + execution per input
 
-  std::map<std::string, size_t> nbElementsPerInput_; ///< Number of elements received per input
+  std::map<std::string, std::size_t> nbElementsPerInput_; ///< Number of elements received per input
 
  public:
   using inputs_t = std::tuple<Inputs...>; ///< Accessor to the input types
@@ -126,7 +124,7 @@ class TaskInputsManagementAbstraction :
   [[nodiscard]] bool canTerminate() override { return canTerminateNode_->canTerminate(); }
 
   /// @brief Access all the task receivers to process an element
-  void operateReceivers(size_t numberThreads = 1) { (this->operateReceiver<Inputs>(numberThreads), ...); }
+  void operateReceivers() { (this->operateReceiver<Inputs>(), ...); }
 
   /// @brief Call for all types the user-defined execute method with nullptr as data
   void callAllExecuteWithNullptr() { (callExecuteForATypeWithNullptr<Inputs>(), ...); }
@@ -148,11 +146,11 @@ class TaskInputsManagementAbstraction :
   /// @brief Access the ReceiverAbstraction of the type InputDataType to process an element
   /// @tparam InputDataType Type of input data
   template<tool::ContainsConcept<Inputs...> InputDataType>
-  void operateReceiver([[maybe_unused]]size_t numberThreads) {
-    static std::string typeStr = hh::tool::typeToStr<InputDataType>();
+  void operateReceiver() {
     auto typedReceiver = static_cast<ReceiverAbstraction<InputDataType> *>(this);
     if (typedReceiver->numberElementsReceived() == 0) {
-        // don't lock the queue if it's already empty
+        // don't lock the queue if it's already empty, if an element is pushed
+        // afterward, the node will be notify another time and retry to dequeue
         return;
     }
     std::chrono::time_point<std::chrono::system_clock>
@@ -161,11 +159,7 @@ class TaskInputsManagementAbstraction :
     std::shared_ptr<InputDataType> data = nullptr;
 
     [[likely]] if (typedReceiver->getInputData(data)) {
-      finish = std::chrono::system_clock::now();
-      incrementDequeueExecutionPerInput<InputDataType>(finish - start);
-      coreTask_->incrementDequeueExecutionDuration(finish - start);
       coreTask_->incrementNumberReceivedElements();
-      start = std::chrono::system_clock::now();
       callExecuteForAType(data);
       finish = std::chrono::system_clock::now();
       incrementDequeueExecutionPerInput<InputDataType>(finish - start);
@@ -228,6 +222,7 @@ class TaskInputsManagementAbstraction :
     static std::string const InputStr = hh::tool::typeToStr<Input>();
     this->dequeueExecutionDurationPerInput_.at(InputStr) += exec;
   }
+
 };
 }
 }

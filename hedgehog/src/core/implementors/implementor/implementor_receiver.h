@@ -91,6 +91,10 @@ class ImplementorReceiver {
   /// @return True if the piece of data has been received, else false.
   virtual bool receive(std::shared_ptr<Input> data) = 0;
 
+  /// @brief Batch receive data interface
+  /// @details Batch reception allow locking the queues only once for receiving mulitple items which can be more optimized in some situation.
+  /// @param datas Datas received by the core
+  /// @return True if the datas have been received, else false.
   virtual bool batchReceive(std::vector<std::shared_ptr<Input>> const &datas) = 0;
 
   /// @brief Get an input data
@@ -102,10 +106,6 @@ class ImplementorReceiver {
   /// @brief Accessor to number of data waiting to be processed in the queue
   /// @return Number of data waiting to be processed in the queue
   [[nodiscard]] virtual size_t numberElementsReceived() = 0;
-
-  /// @brief Returns the queue size after the last receive.
-  /// @return Queue size after the last receive.
-  [[nodiscard]] virtual size_t queueSizeAfterLastReceive() = 0;
 
   /// @brief Accessor to the maximum number of data waiting to be processed in the queue during the whole execution
   /// @return Maximum number of data waiting to be processed in the queue during the whole execution
