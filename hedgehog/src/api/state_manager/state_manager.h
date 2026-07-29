@@ -143,7 +143,7 @@ class StateManager
   /// @brief Default termination rule, it terminates if there is no predecessor connection and there is no input data
   /// @return True if the state manager can terminate, else false
   [[nodiscard]] bool canTerminate() const override {
-    return !coreStateManager_->hasNotifierConnected() && coreStateManager_->receiversEmpty();
+    return !coreStateManager_->hasNotifierConnected() && coreStateManager_->receiversEmpty() && !coreStateManager_->shouldTerminate();
   }
 
   /// @brief Provide a copy of the state manager

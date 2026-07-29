@@ -42,12 +42,15 @@ class DefaultScheduler : public Scheduler {
 
   std::unique_ptr<std::vector<core::abstraction::GraphNodeAbstraction *>>
       innerGraphs_ = nullptr; ///< Scheduler's graph
+  std::unique_ptr<std::vector<core::abstraction::TaskNodeAbstraction *>>
+      taskExec_ = nullptr; ///< Scheduler's tasks
 
  public:
   /// Default constructor
   DefaultScheduler() :
       threads_(std::make_unique<std::vector<std::thread>>()),
-      innerGraphs_(std::make_unique<std::vector<core::abstraction::GraphNodeAbstraction *>>()) {}
+      innerGraphs_(std::make_unique<std::vector<core::abstraction::GraphNodeAbstraction *>>()),
+      taskExec_(std::make_unique<std::vector<core::abstraction::TaskNodeAbstraction *>>()) {}
 
   /// Default destructor
   ~DefaultScheduler() override = default;
@@ -61,13 +64,12 @@ class DefaultScheduler : public Scheduler {
   /// @param waitForInitialization Wait for internal nodes to be initialized flags
   /// @throw std::runtime_error if a thread cannot be created, or if the core is malformed
   void spawnThreads(std::set<core::abstraction::NodeAbstraction *> const &cores, bool waitForInitialization) override {
-    std::vector<core::abstraction::TaskNodeAbstraction *> taskExec{};
-
     for (auto &core : cores) {
       if (auto exec = dynamic_cast<core::abstraction::TaskNodeAbstraction *>(core)) {
         try {
+          exec->shouldTerminate(false);
           threads_->emplace_back(&core::abstraction::TaskNodeAbstraction::run, exec);
-          taskExec.push_back(exec);
+          taskExec_->push_back(exec);
         } catch (std::exception const &e) {
           std::ostringstream oss;
           oss << "Can not create thread for node \"" << core->name() << "\" because of error: " << e.what();
@@ -86,17 +88,22 @@ class DefaultScheduler : public Scheduler {
 
     /// If asked, wait for all internals to be initialized before returning
     if (waitForInitialization) {
-      while (!std::all_of(taskExec.cbegin(), taskExec.cend(),
+      while (!std::all_of(taskExec_->cbegin(), taskExec_->cend(),
                           [](auto const &exec) { return exec->isInitialized(); })) {}
     }
 
   }
 
   /// Wait for all inside nodes to join and join the threads of all inside graphs
-  void joinAll() override {
+  void joinAll(bool forceTerminate) override {
+    if (forceTerminate) {
+      for (auto exec : *this->taskExec_) {
+        exec->shouldTerminate(true);
+      }
+    }
     std::for_each(threads_->begin(), threads_->end(), [](std::thread &t) {  t.join(); });
     for (core::abstraction::GraphNodeAbstraction *innerGraph : *(this->innerGraphs_)) {
-      innerGraph->joinThreads();
+      innerGraph->joinThreads(forceTerminate);
     }
   }
 

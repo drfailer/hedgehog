@@ -161,7 +161,7 @@ class AbstractTask
   /// @brief Default termination rule, it terminates if there is no predecessor connection and there is no input data
   /// @return True if the task can terminate, else false
   [[nodiscard]] bool canTerminate() const override {
-    return !coreTask_->hasNotifierConnected() && coreTask_->receiversEmpty();
+    return !coreTask_->hasNotifierConnected() && coreTask_->receiversEmpty() && !coreTask_->shouldTerminate();
   }
 
   /// @brief Automatic start flag accessor

@@ -287,8 +287,9 @@ class Graph :
   void pushData(std::shared_ptr<CompatibleInputType_t> data) { this->coreGraph_->broadcastAndNotifyAllInputNodes(data); }
 
   /// Wait for the graph to terminate
+  /// @param forceTerminate Forced termination of the graph.
   /// @brief A graph terminate when all the threads it manages are terminated (i.e. when all the nodes are terminated)
-  void waitForTermination() { coreGraph_->waitForTermination(); }
+  void waitForTermination(bool forceTerminate = false) { coreGraph_->waitForTermination(forceTerminate); }
 
   /// Get result data from the graph
   /// @brief Get result from the graph while blocking the main thread. The results are presented under the form of

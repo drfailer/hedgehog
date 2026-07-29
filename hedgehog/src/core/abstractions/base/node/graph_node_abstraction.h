@@ -213,8 +213,9 @@ class GraphNodeAbstraction : public NodeAbstraction, public PrintableAbstraction
     return minMaxWaitDuration;
   }
 
-/// @brief Interface to join the threads inside of a graph, called by the Default scheduler
-  virtual void joinThreads() = 0;
+  /// @brief Interface to join the threads inside of a graph, called by the Default scheduler
+  /// @param forceTerminate Forced termination flag
+  virtual void joinThreads(bool forceTerminate) = 0;
 
 /// @brief Set a graph inside another one
   virtual void setInside() = 0;

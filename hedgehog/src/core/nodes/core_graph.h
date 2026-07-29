@@ -280,9 +280,10 @@ class CoreGraph :
   }
 
   /// @brief Wait for the graph to terminate
+  /// @param forceTerminate Forced termination of the graph.
   /// @details Wait for the inner threads to join
-  void waitForTermination() {
-    joinThreads();
+  void waitForTermination(bool forceTerminate) {
+    joinThreads(forceTerminate);
     std::chrono::time_point<std::chrono::system_clock>
         endExecutionTimeStamp = std::chrono::system_clock::now();
     this->incrementDequeueExecutionDuration(endExecutionTimeStamp - this->startExecutionTimeStamp());
@@ -355,7 +356,8 @@ class CoreGraph :
 
  private:
   /// @brief Wait for the threads to join
-  void joinThreads() override { this->scheduler_->joinAll(); }
+  /// @param forceTerminate Forced termination flag
+  void joinThreads(bool forceTerminate) override { this->scheduler_->joinAll(forceTerminate); }
 
   /// @brief Set the graph as inside of another graph
   void setInside() override {

@@ -46,7 +46,8 @@ class Scheduler {
   virtual void spawnThreads(std::set<core::abstraction::NodeAbstraction *> const &cores, bool waitForInitialization) = 0;
 
   /// @brief Method waiting for all graph's threads termination, called when Graph::waitForTermination() is called
-  virtual void joinAll() = 0;
+  /// @param forceTerminate Forced termination flag
+  virtual void joinAll(bool forceTerminate) = 0;
 };
 
 }
