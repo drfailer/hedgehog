@@ -43,6 +43,7 @@ class AtomicSlot : public ImplementorSlot {
 
   alignas(CACHE_LINE_SIZE) std::atomic<bool> notifierFlag_{false}; ///< Flag used to protect the list of notifiers
   alignas(CACHE_LINE_SIZE) std::atomic_flag waitFlag_{}; ///< Flag used to put to sleep/wake up current thread
+  alignas(CACHE_LINE_SIZE) std::atomic<bool> terminate_{false}; ///< Flag used to terminate the current thread
 
  public:
 
@@ -91,14 +92,28 @@ class AtomicSlot : public ImplementorSlot {
     while (!slot->waitTerminationCondition()) {
       waitFlag_.wait(false);
       waitFlag_.clear();
+      if (terminate_.load()) {
+        return true;
+      }
     }
-    return slot->canTerminate();
+    return slot->canTerminate() || terminate_.load();
   }
 
   /// @brief Function used to wake up a thread attached to the atomic flag
   void wakeUp() override {
     waitFlag_.test_and_set();
     waitFlag_.notify_one();
+  }
+
+  /// @brief Function used to reset the terminate flag
+  void start() override {
+      terminate_.store(false);
+  }
+
+  /// @brief Function used to wake up and terminate a thread attached to the atomic flag
+  void terminate() override {
+      terminate_.store(true);
+      wakeUp();
   }
 
 };

@@ -59,6 +59,10 @@ class GraphSlot : public ImplementorSlot {
 
   void wakeUp() override { for (auto slot : *abstractSlots_) { slot->wakeUp(); }}
 
+  void start() override { for (auto slot : *abstractSlots_) { slot->start(); }}
+
+  void terminate() override { for (auto slot : *abstractSlots_) { slot->terminate(); }}
+
   /// @brief Add a notifier to all input nodes
   /// @param notifier Notifier top add to the input nodes
   void addNotifier(abstraction::NotifierAbstraction *notifier) override {

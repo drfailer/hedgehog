@@ -43,6 +43,7 @@ class DefaultSlot : public ImplementorSlot {
       mutexSleep_{}; ///< Mutex used for the condition_variable / wait mechanism
   std::condition_variable conditionVariable_{}; ///< Condition variable to make the node wait
 
+  bool terminate_ = false; ///< used to force the termination
 
 
  public:
@@ -85,8 +86,8 @@ class DefaultSlot : public ImplementorSlot {
   /// @return True if the node can terminate, else false
   bool sleep(abstraction::SlotAbstraction *slot) override {
     std::unique_lock<std::mutex> lock(mutexSleep_);
-    conditionVariable_.wait(lock, [&slot]() { return slot->waitTerminationCondition(); });
-    return slot->canTerminate();
+    conditionVariable_.wait(lock, [this, &slot]() { return slot->waitTerminationCondition() || terminate_; });
+    return slot->canTerminate() || terminate_;
   }
 
   /// @brief Function used to wake up a thread attached to this condition variable
@@ -95,6 +96,19 @@ class DefaultSlot : public ImplementorSlot {
     // start by being empty, the test store the queue emptiness, some data come in and the slot is notified. Then
     // waitTerminationCondition returns with a wrong value. the thread sleeps without being awakened.
     std::lock_guard<std::mutex> lck(mutexSleep_);
+    conditionVariable_.notify_one();
+  }
+
+  /// @brief Function used to reset the termination flag
+  void start() override {
+    std::lock_guard<std::mutex> lck(mutexSleep_);
+    terminate_ = false;
+  }
+
+  /// @brief Function used to wake up and terminate a thread attached to this condition variable
+  void terminate() override {
+    std::lock_guard<std::mutex> lck(mutexSleep_);
+    terminate_ = true;
     conditionVariable_.notify_one();
   }
 

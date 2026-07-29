@@ -81,6 +81,12 @@ class ImplementorSlot {
 
   /// @brief Function used to wake up a thread attached to this slot
   virtual void wakeUp() = 0;
+
+  /// @brief Function used before starting a thread
+  virtual void start() = 0;
+
+  /// @brief Function used to force the termination of the threads attatched to this slot
+  virtual void terminate() = 0;
 };
 }
 }

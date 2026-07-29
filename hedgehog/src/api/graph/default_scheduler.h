@@ -67,6 +67,9 @@ class DefaultScheduler : public Scheduler {
     for (auto &core : cores) {
       if (auto exec = dynamic_cast<core::abstraction::TaskNodeAbstraction *>(core)) {
         try {
+          if (auto slot = dynamic_cast<core::abstraction::SlotAbstraction *>(exec)) {
+              slot->start();
+          }
           threads_->emplace_back(&core::abstraction::TaskNodeAbstraction::run, exec);
           taskExec_->push_back(exec);
         } catch (std::exception const &e) {
@@ -97,7 +100,9 @@ class DefaultScheduler : public Scheduler {
   void joinAll(bool forceTerminate) override {
     if (forceTerminate) {
       for (auto exec : *this->taskExec_) {
-        // TODO: wake up
+        if (auto slot = dynamic_cast<core::abstraction::SlotAbstraction *>(exec)) {
+            slot->terminate();
+        }
       }
     }
     std::for_each(threads_->begin(), threads_->end(), [](std::thread &t) {  t.join(); });
