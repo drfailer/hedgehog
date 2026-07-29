@@ -23,6 +23,7 @@
 #include "tests_impl/test_state_manager.h"
 #include "tests_impl/test_memory_manager.h"
 #include "tests_impl/test_lambda_task.h"
+#include "tests_impl/test_force_termination.h"
 
 #include "tests_impl/compile_time_tests/test_basic.h"
 #include "tests_impl/compile_time_tests/test_critical_path.h"
@@ -63,6 +64,10 @@ TEST(HedgehogTools, metafunctions) {
 
 TEST(HedgehogTools, pool) {
   ASSERT_NO_THROW(testPool());
+}
+
+TEST(HedgehogGraph, forceTermination) {
+  ASSERT_NO_THROW(testForceTermination());
 }
 
 #ifdef HH_ENABLE_HH_CX
