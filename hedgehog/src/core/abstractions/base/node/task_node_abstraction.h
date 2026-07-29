@@ -40,8 +40,7 @@ class TaskNodeAbstraction : public NodeAbstraction, public PrintableAbstraction 
   size_t numberReceivedElements_ = 0; ///< Number of elements received
   bool
       isActive_ = false, ///< Active flag
-      isInitialized_ = false, ///< Is initialized flag
-      shouldTerminate_ = true; ///< Used with forced termination
+      isInitialized_ = false; ///< Is initialized flag
 
 
   std::chrono::nanoseconds
@@ -81,10 +80,6 @@ class TaskNodeAbstraction : public NodeAbstraction, public PrintableAbstraction 
     initMutex_.unlock();
     return ret;
   }
-
-  /// @brief Accessor to force termination flag
-  /// @return True if the thread should terminate
-  [[nodiscard]] bool shouldTerminate() const { return shouldTerminate_; }
 
   /// @brief Accessor to the number of received elements
   /// @return Number of received elements
@@ -141,10 +136,6 @@ class TaskNodeAbstraction : public NodeAbstraction, public PrintableAbstraction 
 
   /// @brief Increment the number of elements received
   void incrementNumberReceivedElements() { ++this->numberReceivedElements_; }
-
-  /// @brief Setter to the termination flag
-  /// @param shouldTerminate Flag value
-  void shouldTerminate(bool shouldTerminate) { shouldTerminate_ = shouldTerminate; }
 
   /// @brief Increment the wait duration
   /// @param wait Duration in nanoseconds

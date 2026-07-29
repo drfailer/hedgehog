@@ -166,7 +166,7 @@ class CoreExecutionPipeline
   /// @brief Post run logic, disconnects the switch and waits for each graph to terminate
   void postRun() override {
     this->disconnectSwitch();
-    for (auto &g : this->coreGraphs_) { g->waitForTermination(this->shouldTerminate()); }
+    for (auto &g : this->coreGraphs_) { g->waitForTermination(false); }
     this->isActive(false);
   }
 

@@ -67,7 +67,6 @@ class DefaultScheduler : public Scheduler {
     for (auto &core : cores) {
       if (auto exec = dynamic_cast<core::abstraction::TaskNodeAbstraction *>(core)) {
         try {
-          exec->shouldTerminate(false);
           threads_->emplace_back(&core::abstraction::TaskNodeAbstraction::run, exec);
           taskExec_->push_back(exec);
         } catch (std::exception const &e) {
@@ -98,7 +97,7 @@ class DefaultScheduler : public Scheduler {
   void joinAll(bool forceTerminate) override {
     if (forceTerminate) {
       for (auto exec : *this->taskExec_) {
-        exec->shouldTerminate(true);
+        // TODO: wake up
       }
     }
     std::for_each(threads_->begin(), threads_->end(), [](std::thread &t) {  t.join(); });
