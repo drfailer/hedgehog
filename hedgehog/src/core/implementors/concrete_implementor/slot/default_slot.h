@@ -109,7 +109,7 @@ class DefaultSlot : public ImplementorSlot {
   void terminate() override {
     std::lock_guard<std::mutex> lck(mutexSleep_);
     terminate_ = true;
-    conditionVariable_.notify_one();
+    conditionVariable_.notify_all();
   }
 
 };
