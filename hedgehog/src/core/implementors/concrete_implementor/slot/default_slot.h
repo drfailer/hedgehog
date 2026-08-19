@@ -38,7 +38,7 @@ class DefaultSlot : public ImplementorSlot {
   std::unique_ptr<std::set<abstraction::NotifierAbstraction *>> const notifiers_ =
       std::make_unique<std::set<abstraction::NotifierAbstraction * >>(); ///< List of notifiers linked to this slot
 
-  std::mutex
+  mutable std::mutex
       mutexNotifierAccess_{}, ///< Mutex to protect the list of notifiers
       mutexSleep_{}; ///< Mutex used for the condition_variable / wait mechanism
   std::condition_variable conditionVariable_{}; ///< Condition variable to make the node wait
@@ -99,19 +99,22 @@ class DefaultSlot : public ImplementorSlot {
     conditionVariable_.notify_one();
   }
 
-  /// @brief Function used to reset the termination flag
-  void start() override {
-    std::lock_guard<std::mutex> lck(mutexSleep_);
-    terminate_ = false;
-  }
-
   /// @brief Function used to wake up and terminate a thread attached to this condition variable
-  void terminate() override {
+  /// @param value Value of the termination flag.
+  void terminate(bool value) override {
     std::lock_guard<std::mutex> lck(mutexSleep_);
-    terminate_ = true;
-    conditionVariable_.notify_all();
+    terminate_ = value;
+    if (value) {
+        conditionVariable_.notify_all();
+    }
   }
 
+  /// @brief Return of the slot has been terminated.
+  /// @return True if the slot has been terminated.
+  bool terminate() const override {
+    std::lock_guard<std::mutex> lck(mutexSleep_);
+    return terminate_;
+  }
 };
 }
 }

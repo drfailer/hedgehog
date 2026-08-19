@@ -105,17 +105,20 @@ class AtomicSlot : public ImplementorSlot {
     waitFlag_.notify_one();
   }
 
-  /// @brief Function used to reset the terminate flag
-  void start() override {
-      terminate_.store(false);
-  }
-
   /// @brief Function used to wake up and terminate a thread attached to the atomic flag
-  void terminate() override {
-      terminate_.store(true);
-      wakeUp();
+  /// @param value Value of the termination flag.
+  void terminate(bool value) override {
+      terminate_.store(value);
+      if (value) {
+          wakeUp();
+      }
   }
 
+  /// @brief Return of the slot has been terminated.
+  /// @return True if the slot has been terminated.
+  bool terminate() const override {
+      return terminate_.load();
+  }
 };
 }
 }

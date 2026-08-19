@@ -59,9 +59,15 @@ class GraphSlot : public ImplementorSlot {
 
   void wakeUp() override { for (auto slot : *abstractSlots_) { slot->wakeUp(); }}
 
-  void start() override { for (auto slot : *abstractSlots_) { slot->start(); }}
+  void terminate(bool value) override { for (auto slot : *abstractSlots_) { slot->terminate(value); }}
 
-  void terminate() override { for (auto slot : *abstractSlots_) { slot->terminate(); }}
+  bool terminate() const override {
+      bool result = true;
+      for (auto slot : *abstractSlots_) {
+          result &= slot->terminate();
+      }
+      return result;
+  }
 
   /// @brief Add a notifier to all input nodes
   /// @param notifier Notifier top add to the input nodes

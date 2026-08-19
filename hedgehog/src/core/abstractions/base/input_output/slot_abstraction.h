@@ -118,11 +118,13 @@ class SlotAbstraction {
   /// @return True if the node can terminate, else false
   [[nodiscard]] virtual bool canTerminate() = 0;
 
-  /// @brief Callback to the concrete slot start function
-  void start() { concreteSlot_->start(); }
+  /// @brief Callback to the concrete slot terminate function
+  /// @param value True if the slot should terminate.
+  void terminate(bool value) { concreteSlot_->terminate(value); }
 
   /// @brief Callback to the concrete slot terminate function
-  void terminate() { concreteSlot_->terminate(); }
+  /// @return True when the slot has been terminated.
+  bool terminate() const { return concreteSlot_->terminate(); }
 };
 }
 }

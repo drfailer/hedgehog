@@ -68,7 +68,7 @@ class DefaultScheduler : public Scheduler {
       if (auto exec = dynamic_cast<core::abstraction::TaskNodeAbstraction *>(core)) {
         try {
           if (auto slot = dynamic_cast<core::abstraction::SlotAbstraction *>(exec)) {
-              slot->start();
+              slot->terminate(false);
           }
           threads_->emplace_back(&core::abstraction::TaskNodeAbstraction::run, exec);
           taskExec_->push_back(exec);
@@ -101,7 +101,7 @@ class DefaultScheduler : public Scheduler {
     if (forceTerminate) {
       for (auto exec : *this->taskExec_) {
         if (auto slot = dynamic_cast<core::abstraction::SlotAbstraction *>(exec)) {
-            slot->terminate();
+            slot->terminate(true);
         }
       }
     }
