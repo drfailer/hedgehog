@@ -238,9 +238,9 @@ struct LambdaContainerDeducer;
 /// @tparam LambdaTaskType Type of the lambda task (CRTP)
 /// @tparam Inputs Input types of the lambda task
 template<class LambdaTaskType, class ...Inputs>
-struct LambdaContainerDeducer<LambdaTaskType, std::tuple<Inputs...>> { 
+struct LambdaContainerDeducer<LambdaTaskType, std::tuple<Inputs...>> {
     /// @brief Accessor to the type of the lambda container
-    using type = LambdaContainer<LambdaTaskType, Inputs...>; 
+    using type = LambdaContainer<LambdaTaskType, Inputs...>;
 };
 
 /// @brief Helper that gives the type of the lambda container in a lambda task
@@ -277,6 +277,28 @@ constexpr auto typeToStrView() {
 /// @return String containing the name of the type
 template<typename T>
 constexpr auto typeToStr() { return std::string(typeToStrView<T>()); }
+
+template <typename Type, typename ...Types>
+struct TypeIndex;
+
+template <typename T, typename ...Ts>
+struct TypeIndex<T, T, Ts...> {
+    static constexpr size_t index = 0;
+};
+
+template <typename Type, typename T, typename ...Ts>
+struct TypeIndex<Type, T, Ts...> {
+    static constexpr size_t index = 1 + TypeIndex<Type, Ts...>::index;
+};
+
+template <typename Type, typename ...Types>
+constexpr size_t TypeIndex_v = TypeIndex<Type, Types...>::index;
+
+// #ifndef NDEBUG
+static_assert(TypeIndex_v<int, int, float, double> == 0);
+static_assert(TypeIndex_v<float, int, float, double> == 1);
+static_assert(TypeIndex_v<double, int, float, double> == 2);
+// #endif
 
 }
 }

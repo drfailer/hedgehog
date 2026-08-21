@@ -180,7 +180,7 @@ class GenericCoreTask
       // Wait for a data to arrive or termination
       this->nvtxProfiler()->startRangeWaiting();
       start = std::chrono::system_clock::now();
-      canTerminate = this->sleep();
+      canTerminate = this->sleep(SlotSleepOptions{this->threadId()});
       finish = std::chrono::system_clock::now();
       this->nvtxProfiler()->endRangeWaiting();
       this->incrementWaitDuration(std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start));

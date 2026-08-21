@@ -143,7 +143,7 @@ class CoreExecutionPipeline
     while (!this->canTerminate()) {
       // Wait for a data to arrive or termination
       start = std::chrono::system_clock::now();
-      isDone = this->sleep();
+      isDone = this->sleep(SlotSleepOptions{0});
       finish = std::chrono::system_clock::now();
       this->incrementWaitDuration(std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start));
 
@@ -306,7 +306,11 @@ class CoreExecutionPipeline
           while(!std::static_pointer_cast<abstraction::ReceiverAbstraction<Input>>(coreGraph)->receive(data)) {
             cross_platform_yield();
           }
-          std::static_pointer_cast<abstraction::SlotAbstraction>(coreGraph)->wakeUp();
+          std::static_pointer_cast<abstraction::SlotAbstraction>(coreGraph)->wakeUp(
+                  SlotWakeUpOptions{
+                    .count = 1,
+                    .typeId =  hh::tool::TypeIndex_v<Input, AllTypes...>,
+          });
         }
       }
     }

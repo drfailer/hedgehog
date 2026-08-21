@@ -69,7 +69,10 @@ class TaskOutputsManagementAbstraction : public NotifierAbstraction, public Send
   template<tool::ContainsConcept<Outputs...> OutputDataType>
   void sendAndNotify(std::shared_ptr<OutputDataType> data) {
     static_cast<SenderAbstraction<OutputDataType> *>(this)->send(data);
-    static_cast<NotifierAbstraction *>(this)->notify();
+    static_cast<NotifierAbstraction *>(this)->notify(NotifierNotifyOptions{
+            .count = 1,
+            .typeId = hh::tool::TypeIndex_v<OutputDataType, Outputs...>,
+    });
   }
 
 
