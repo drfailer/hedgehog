@@ -20,11 +20,21 @@
 #define HEDGEHOG_IMPLEMENTOR_RECEIVER_H
 
 #include <set>
+#include <optional>
 
 /// @brief Hedgehog main namespace
 namespace hh {
 /// @brief Hedgehog core namespace
 namespace core {
+
+struct ReceiverGetInputDataOptions {
+  std::optional<int> threadId;
+};
+
+struct ReceiverReceiveOptions {
+    // ???
+};
+
 
 /// @brief Hedgehog abstraction namespace
 namespace abstraction {
@@ -89,13 +99,13 @@ class ImplementorReceiver {
   /// @brief Receive data interface
   /// @param data Data received by the core
   /// @return True if the piece of data has been received, else false.
-  virtual bool receive(std::shared_ptr<Input> data) = 0;
+  virtual bool receive(std::shared_ptr<Input> data, ReceiverReceiveOptions const &opts) = 0;
 
   /// @brief Get an input data
   /// @details If a data is available, it is placed in data
   /// @param data Reference to the data to get from the receiver
   /// @return True if a data is available, else false
-  [[nodiscard]] virtual bool getInputData(std::shared_ptr<Input> &data) = 0;
+  [[nodiscard]] virtual bool getInputData(std::shared_ptr<Input> &data, ReceiverGetInputDataOptions const &opts) = 0;
 
   /// @brief Accessor to number of data waiting to be processed in the queue
   /// @return Number of data waiting to be processed in the queue

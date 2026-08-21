@@ -66,7 +66,7 @@ class QueueReceiver : public ImplementorReceiver<Input> {
   /// @brief Receive a data and store it in the queue
   /// @param data Data to store
   /// @return True
-  bool receive(std::shared_ptr<Input> data) final {
+  bool receive(std::shared_ptr<Input> data, ReceiverReceiveOptions const &) final {
     std::lock_guard<std::mutex> lck(queueMutex_);
     queue_->push(data);
     maxSize_ = std::max(queue_->size(), maxSize_);
@@ -77,7 +77,7 @@ class QueueReceiver : public ImplementorReceiver<Input> {
   /// @warning The queue should not be empty
   /// @param data Data to get from the queue
   /// @return The data in front of the queue
-  [[nodiscard]] bool getInputData(std::shared_ptr<Input> &data) override {
+  [[nodiscard]] bool getInputData(std::shared_ptr<Input> &data, ReceiverGetInputDataOptions const &) override {
     std::lock_guard<std::mutex> lck(queueMutex_);
     bool ret = false;
     if(!queue_->empty()){

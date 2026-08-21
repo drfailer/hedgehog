@@ -42,13 +42,13 @@ class PriorityQueueReceiver : public hh::core::implementor::ImplementorReceiver<
   explicit PriorityQueueReceiver() : queue_(std::make_unique<QueueType>()),
   senders_(std::make_unique<std::set<hh::core::abstraction::SenderAbstraction<Input> *>>()) {}
   virtual ~PriorityQueueReceiver() = default;
-  bool receive(std::shared_ptr<Input> data) final {
+  bool receive(std::shared_ptr<Input> data, hh::core::ReceiverReceiveOptions const &) final {
     std::lock_guard<std::mutex> lck(queueMutex_);
     queue_->push(data);
     maxSize_ = std::max(queue_->size(), maxSize_);
     return true;
   }
-  [[nodiscard]] bool getInputData(std::shared_ptr<Input> &data) override {
+  [[nodiscard]] bool getInputData(std::shared_ptr<Input> &data, hh::core::ReceiverGetInputDataOptions const &) override {
     std::lock_guard<std::mutex> lck(queueMutex_);
     assert(!queue_->empty());
     data = queue_->top();

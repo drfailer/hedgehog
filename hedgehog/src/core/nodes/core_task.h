@@ -203,7 +203,7 @@ class CoreTask
       if (canTerminate) { break; }
 
       // Operate the connectedReceivers to get a data and send it to execute
-      this->operateReceivers();
+      this->operateReceivers({this->threadId()});
     }
 
     // Do the shutdown phase

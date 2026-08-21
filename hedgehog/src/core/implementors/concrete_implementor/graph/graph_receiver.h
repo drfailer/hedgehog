@@ -82,7 +82,7 @@ class GraphReceiver : public ImplementorReceiver<Input> {
   /// @return Nothing, throw a std::runtime_error
   /// @throw std::runtime_error It is not possible to get the number of input data from the graph receiver as it is only
   /// used to transfer data to input nodes.
-  bool getInputData([[maybe_unused]]std::shared_ptr<Input> &data) override {
+  bool getInputData([[maybe_unused]]std::shared_ptr<Input> &data, ReceiverGetInputDataOptions const &) override {
     throw std::runtime_error("It is not possible to get input data from the graph receiver as it is only used to "
                              "transfer data to input nodes.");
   }
@@ -99,7 +99,7 @@ class GraphReceiver : public ImplementorReceiver<Input> {
   /// @return True
   /// @note Returns always true, this receiver send data to all input nodes. If the node cannot receive the data, it is
   /// retried until the data go through.
-  bool receive(std::shared_ptr<Input> data) override {
+  bool receive(std::shared_ptr<Input> data, ReceiverReceiveOptions const &) override {
     std::for_each(
         this->abstractReceivers_->begin(), this->abstractReceivers_->end(),
         [&data](abstraction::ReceiverAbstraction<Input> *receiver) {

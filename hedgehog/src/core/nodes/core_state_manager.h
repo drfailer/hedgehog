@@ -265,7 +265,7 @@ class CoreStateManager
       finish = std::chrono::system_clock::now();
       this->incrementAcquireStateDuration(std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start));
 
-      this->operateReceivers();
+      this->operateReceivers({0});
       start = std::chrono::system_clock::now();
       emptyReadyLists<Outputs_t>(indices);
       finish = std::chrono::system_clock::now();

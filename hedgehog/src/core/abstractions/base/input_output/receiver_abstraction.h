@@ -26,6 +26,7 @@
 #include "sender_abstraction.h"
 #include "../any_groupable_abstraction.h"
 #include "../node/node_abstraction.h"
+#include "../../../implementors/implementor/implementor_receiver.h"
 
 /// @brief Hedgehog main namespace
 namespace hh {
@@ -93,13 +94,13 @@ class ReceiverAbstraction {
   /// @details Receive a piece of data and transmit it to the concrete receiver implementation.
   /// @param inputData Data to transmit to the implementation
   /// @return True if the piece of data has been received, else false.
-  bool receive(std::shared_ptr<Input> const inputData) { return concreteReceiver_->receive(inputData); }
+  bool receive(std::shared_ptr<Input> const inputData, ReceiverReceiveOptions const &opts = {}) { return concreteReceiver_->receive(inputData, opts); }
 
   /// @brief Get an input data from the concrete receiver implementation
   /// @details If a data is available, it is placed in data
   /// @param data Reference to the data to get from the receiver
   /// @return True if a data is available, else false
-  bool getInputData(std::shared_ptr<Input> &data) { return concreteReceiver_->getInputData(data); }
+  bool getInputData(std::shared_ptr<Input> &data, ReceiverGetInputDataOptions const &opts = {}) { return concreteReceiver_->getInputData(data, opts); }
 
   /// @brief Accessor to the current number of input data received and waiting to be processed
   /// @return The current number of input data received and waiting to be processed

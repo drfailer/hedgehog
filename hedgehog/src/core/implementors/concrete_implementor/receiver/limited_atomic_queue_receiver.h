@@ -111,7 +111,7 @@ class LimitedAtomicQueueReceiver : public ImplementorReceiver<Input> {
   /// @warning The storage may fail, the function returns then false
   /// @param data Data to store
   /// @return True if the data has been stored, else false
-  bool receive(std::shared_ptr<Input> data) override {
+  bool receive(std::shared_ptr<Input> data, ReceiverReceiveOptions const &) override {
     assert(data != nullptr);
     auto head = head_.load(std::memory_order_relaxed);
     do { if (head - tail_.load(std::memory_order_relaxed) >= MaxCapacity) { return false; }}
@@ -136,7 +136,7 @@ class LimitedAtomicQueueReceiver : public ImplementorReceiver<Input> {
   /// @warning The operation may fail, the function returns then false
   /// @param data Reference uses to return the piece of data
   /// @return True if the data has been returned, else false
-  bool getInputData(std::shared_ptr<Input> &data) override {
+  bool getInputData(std::shared_ptr<Input> &data, ReceiverGetInputDataOptions const &) override {
     auto tail = tail_.load(std::memory_order_relaxed);
     do { if (head_.load(std::memory_order_relaxed) - tail <= 0) { return false; }}
     while (!tail_.compare_exchange_strong(tail, tail + 1, std::memory_order_relaxed, std::memory_order_relaxed));

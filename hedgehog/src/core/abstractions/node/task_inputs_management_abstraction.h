@@ -40,6 +40,10 @@ namespace core {
 /// @brief Hedgehog abstraction namespace
 namespace abstraction {
 
+struct TIMOperateReceiversOptions {
+  int threadId;
+};
+
 /// @brief Input management abstraction for the task
 /// @tparam Inputs Types of input data
 template<class ...Inputs>
@@ -124,7 +128,7 @@ class TaskInputsManagementAbstraction :
   [[nodiscard]] bool canTerminate() override { return canTerminateNode_->canTerminate(); }
 
   /// @brief Access all the task receivers to process an element
-  void operateReceivers() { (this->operateReceiver<Inputs>(), ...); }
+  void operateReceivers(TIMOperateReceiversOptions const &opts) { (this->operateReceiver<Inputs>(opts), ...); }
 
   /// @brief Call for all types the user-defined execute method with nullptr as data
   void callAllExecuteWithNullptr() { (callExecuteForATypeWithNullptr<Inputs>(), ...); }
@@ -146,13 +150,13 @@ class TaskInputsManagementAbstraction :
   /// @brief Access the ReceiverAbstraction of the type InputDataType to process an element
   /// @tparam InputDataType Type of input data
   template<tool::ContainsConcept<Inputs...> InputDataType>
-  void operateReceiver() {
+  void operateReceiver(TIMOperateReceiversOptions const &opts) {
     auto typedReceiver = static_cast<ReceiverAbstraction<InputDataType> *>(this);
     std::chrono::time_point<std::chrono::system_clock>
         start = std::chrono::system_clock::now(),
         finish;
     std::shared_ptr<InputDataType> data = nullptr;
-    [[likely]] if (typedReceiver->getInputData(data)) {
+    [[likely]] if (typedReceiver->getInputData(data, ReceiverGetInputDataOptions{opts.threadId})) {
       coreTask_->incrementNumberReceivedElements();
       callExecuteForAType(data);
       finish = std::chrono::system_clock::now();

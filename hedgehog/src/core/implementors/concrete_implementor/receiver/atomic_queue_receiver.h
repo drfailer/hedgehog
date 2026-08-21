@@ -116,7 +116,7 @@ class AtomicQueueReceiver : public ImplementorReceiver<Input> {
   /// @brief Store a piece of data in the atomic queue
   /// @param data Data to store
   /// @return True
-  bool receive(std::shared_ptr<Input> data) override {
+  bool receive(std::shared_ptr<Input> data, ReceiverReceiveOptions const &) override {
     assert(data != nullptr);
     auto newNode = new Node(data);
 
@@ -136,7 +136,7 @@ class AtomicQueueReceiver : public ImplementorReceiver<Input> {
   /// @brief Get a piece of data from the atomic queue
   /// @param data Reference uses to return the piece of data
   /// @return True
-  bool getInputData(std::shared_ptr<Input> &data) override {
+  bool getInputData(std::shared_ptr<Input> &data, ReceiverGetInputDataOptions const &) override {
     data = nullptr;
 
     while (consumerLock_.exchange(true, std::memory_order_acquire));
