@@ -22,10 +22,18 @@
 #include <memory>
 #include <set>
 
+#include "../../abstractions/base/input_output/notifier_abstraction.h"
+
 /// @brief Hedgehog main namespace
 namespace hh {
 /// @brief Hedgehog core namespace
 namespace core {
+
+// TODO(RC): not sure optional is good here; I'd also like an Either type which allows to specify a code instead of the value
+struct NotifierNotifyOptions {
+    std::optional<size_t> count = std::nullopt;
+    std::optional<size_t> typeId = std::nullopt;
+};
 
 /// @brief Hedgehog abstraction namespace
 namespace abstraction {
@@ -70,7 +78,7 @@ class ImplementorNotifier {
   virtual void removeSlot(abstraction::SlotAbstraction *slot) = 0;
 
   /// @brief Notify the connected slots to wake up
-  virtual void notify() = 0;
+  virtual void notify(NotifierNotifyOptions const &opts) = 0;
 
   /// @brief Notify the connected slots that this notifier is terminated
   virtual void notifyAllTerminated() = 0;

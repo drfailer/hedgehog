@@ -21,6 +21,7 @@
 #pragma once
 
 #include <utility>
+#include <optional>
 #include <ostream>
 
 #include "slot_abstraction.h"
@@ -29,6 +30,7 @@
 
 /// @brief Hedgehog main namespace
 namespace hh {
+
 /// @brief Hedgehog core namespace
 namespace core {
 
@@ -85,7 +87,7 @@ class NotifierAbstraction {
   [[nodiscard]] std::set<SlotAbstraction *> const &connectedSlots() const { return concreteNotifier_->connectedSlots(); }
 
   /// @brief Notify a slot to wake up
-  void notify() { concreteNotifier_->notify(); }
+  void notify(NotifierNotifyOptions const &opts = {}) { concreteNotifier_->notify(opts); }
 
   /// @brief Notifier all slots that this node is terminated
   void notifyAllTerminated() { concreteNotifier_->notifyAllTerminated(); }

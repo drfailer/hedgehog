@@ -27,6 +27,16 @@
 namespace hh {
 /// @brief Hedgehog core namespace
 namespace core {
+
+struct SlotWakeUpOptions {
+    std::optional<size_t> count = std::nullopt;
+    std::optional<size_t> typeId = std::nullopt;
+};
+
+struct SlotSleepOptions {
+    std::optional<int> threadId = std::nullopt;
+};
+
 /// @brief Hedgehog implementor namespace
 namespace implementor {
 
@@ -77,10 +87,10 @@ class ImplementorSlot {
   /// @brief Sleep mechanism used to make the thread enter in a sleep state
   /// @param slot Slot abstraction (core attache to the thread), used for callbacks
   /// @return True if the node can terminate, else false
-  virtual bool sleep(abstraction::SlotAbstraction * slot) = 0;
+  virtual bool sleep(abstraction::SlotAbstraction * slot, SlotSleepOptions const &opts) = 0;
 
   /// @brief Function used to wake up a thread attached to this slot
-  virtual void wakeUp() = 0;
+  virtual void wakeUp(SlotWakeUpOptions const &opts) = 0;
 
   /// @brief Function used to force the termination of the threads attatched to this slot
   /// @param value Value of the termination flag.

@@ -25,11 +25,13 @@
 #include <utility>
 #include <iostream>
 #include <condition_variable>
+#include <optional>
 
 #include "../../../implementors/implementor/implementor_slot.h"
 
 /// @brief Hedgehog main namespace
 namespace hh {
+
 /// @brief Hedgehog core namespace
 namespace core {
 
@@ -92,11 +94,11 @@ class SlotAbstraction {
   void removeNotifier(NotifierAbstraction *const notifier) { concreteSlot_->removeNotifier(notifier); }
 
   /// @brief Callback to the concrete slot wake up function
-  void wakeUp() { concreteSlot_->wakeUp(); }
+  void wakeUp(SlotWakeUpOptions const &opts = {}) { concreteSlot_->wakeUp(opts); }
 
   /// @brief Callback to the concrete slot sleep function
   /// @return True if the node can terminate, else false
-  bool sleep() { return concreteSlot_->sleep(this); }
+  bool sleep(SlotSleepOptions const &opts = {}) { return concreteSlot_->sleep(this, opts); }
 
   /// @brief Test if there is at least one notifier connected
   /// @return True if there is at least one notifier connected, else false
