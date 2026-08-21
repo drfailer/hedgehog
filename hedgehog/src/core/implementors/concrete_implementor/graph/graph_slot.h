@@ -53,11 +53,11 @@ class GraphSlot : public ImplementorSlot {
 
   size_t nbNotifierConnected() override { return 0; }
 
-  bool sleep([[maybe_unused]] abstraction::SlotAbstraction *slot) override {
+  bool sleep([[maybe_unused]] abstraction::SlotAbstraction *slot, SlotSleepOptions const &) override {
     throw std::runtime_error("A graph slot cannot sleep, it is not attached to a thread.");
   }
 
-  void wakeUp() override { for (auto slot : *abstractSlots_) { slot->wakeUp(); }}
+  void wakeUp(SlotWakeUpOptions const &opts) override { for (auto slot : *abstractSlots_) { slot->wakeUp(opts); }}
 
   void terminate(bool value) override { for (auto slot : *abstractSlots_) { slot->terminate(value); }}
 

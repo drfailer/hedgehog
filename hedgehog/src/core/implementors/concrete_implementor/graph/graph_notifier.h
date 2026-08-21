@@ -63,7 +63,7 @@ class GraphNotifier : public ImplementorNotifier {
 
   /// @brief Do not use, a graph does not notify
   /// @throw std::runtime_error A graph has no slot to notify
-  void notify() override { throw std::runtime_error("A graph has no slot to notify."); }
+  void notify(NotifierNotifyOptions const &) override { throw std::runtime_error("A graph has no slot to notify."); }
 
   /// @brief Do not use, a graph does not notify
   /// @throw std::runtime_error A graph has no slot to notify

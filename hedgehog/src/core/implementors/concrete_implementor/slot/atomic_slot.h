@@ -88,7 +88,7 @@ class AtomicSlot : public ImplementorSlot {
   /// @brief Sleep mechanism used to make the thread enter in a sleep state
   /// @param slot Slot abstraction (core attache to the thread), used for callbacks
   /// @return True if the node can terminate, else false
-  bool sleep(abstraction::SlotAbstraction *slot) override {
+  bool sleep(abstraction::SlotAbstraction *slot, SlotSleepOptions const &) override {
     while (!slot->waitTerminationCondition()) {
       waitFlag_.wait(false);
       waitFlag_.clear();
@@ -100,9 +100,13 @@ class AtomicSlot : public ImplementorSlot {
   }
 
   /// @brief Function used to wake up a thread attached to the atomic flag
-  void wakeUp() override {
+  void wakeUp(SlotWakeUpOptions const &opts) override {
     waitFlag_.test_and_set();
-    waitFlag_.notify_one();
+    if (opts.count && opts.count.value() == 1) {
+      waitFlag_.notify_one();
+    } else {
+      waitFlag_.notify_all();
+    }
   }
 
   /// @brief Function used to wake up and terminate a thread attached to the atomic flag
@@ -110,7 +114,7 @@ class AtomicSlot : public ImplementorSlot {
   void terminate(bool value) override {
       terminate_.store(value);
       if (value) {
-          wakeUp();
+        waitFlag_.notify_all();
       }
   }
 

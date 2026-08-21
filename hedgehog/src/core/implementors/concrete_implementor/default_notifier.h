@@ -64,9 +64,14 @@ class DefaultNotifier : public ImplementorNotifier {
   [[nodiscard]] std::set<abstraction::SlotAbstraction *> const &connectedSlots() const override { return *slots_; }
 
   /// @brief Notify method, calls wakeUp on all connected slots
-  void notify() override {
+  void notify(NotifierNotifyOptions const &opts) override {
     std::lock_guard<std::mutex> lck(mutex_);
-    for (const auto &slot : *slots_) { slot->wakeUp(); }
+    for (const auto &slot : *slots_) {
+      slot->wakeUp(SlotWakeUpOptions{
+              .count = opts.count,
+              .typeId = opts.typeId,
+      });
+    }
   }
 
   /// @brief Remove the notifier connection from all connected slots, and calls wakeUp on all
@@ -75,6 +80,8 @@ class DefaultNotifier : public ImplementorNotifier {
     for (auto notifier : *(this->abstractNotifiers_)) {
       for (abstraction::SlotAbstraction *slot : *slots_) { slot->removeNotifier(notifier); }
     }
+    // FIXME(RC): we don't have to do that when using forced termination
+    //            for now we pass -1
     for (abstraction::SlotAbstraction *slot : *slots_) { slot->wakeUp(); }
     while (!slots_->empty()) { slots_->erase(slots_->begin()); }
   }
